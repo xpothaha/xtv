@@ -16,6 +16,9 @@ func checkRequirements() (bool, []string) {
 	results := []string{}
 	ok := true
 
+	pass := "✔"
+	fail := "✗"
+
 	// 1. Check RAM >= 4GB
 	ramOK := false
 	ramGB := 0.0
@@ -35,18 +38,18 @@ func checkRequirements() (bool, []string) {
 		}
 	}
 	if ramOK {
-		results = append(results, fmt.Sprintf("[✔] RAM >= 4GB (%.1f GB)", ramGB))
+		results = append(results, fmt.Sprintf("[%s] RAM >= 4GB (%.1f GB)", pass, ramGB))
 	} else {
-		results = append(results, fmt.Sprintf("[✗] RAM >= 4GB (%.1f GB)", ramGB))
+		results = append(results, fmt.Sprintf("[%s] RAM >= 4GB (%.1f GB)", fail, ramGB))
 		ok = false
 	}
 
 	// 2. Check CPU cores >= 2
 	cpuOK := runtime.NumCPU() >= 2
 	if cpuOK {
-		results = append(results, fmt.Sprintf("[✔] CPU Cores >= 2 (%d cores)", runtime.NumCPU()))
+		results = append(results, fmt.Sprintf("[%s] CPU Cores >= 2 (%d cores)", pass, runtime.NumCPU()))
 	} else {
-		results = append(results, fmt.Sprintf("[✗] CPU Cores >= 2 (%d cores)", runtime.NumCPU()))
+		results = append(results, fmt.Sprintf("[%s] CPU Cores >= 2 (%d cores)", fail, runtime.NumCPU()))
 		ok = false
 	}
 
@@ -59,9 +62,9 @@ func checkRequirements() (bool, []string) {
 		}
 	}
 	if virt {
-		results = append(results, "[✔] CPU Virtualization (VT-x/AMD-V)")
+		results = append(results, "[%s] CPU Virtualization (VT-x/AMD-V)")
 	} else {
-		results = append(results, "[✗] CPU Virtualization (VT-x/AMD-V)")
+		results = append(results, "[%s] CPU Virtualization (VT-x/AMD-V)")
 		ok = false
 	}
 
@@ -74,9 +77,9 @@ func checkRequirements() (bool, []string) {
 		}
 	}
 	if iommu {
-		results = append(results, "[✔] IOMMU (VT-d/AMD-Vi)")
+		results = append(results, "[%s] IOMMU (VT-d/AMD-Vi)")
 	} else {
-		results = append(results, "[✗] IOMMU (VT-d/AMD-Vi)")
+		results = append(results, "[%s] IOMMU (VT-d/AMD-Vi)")
 		ok = false
 	}
 
@@ -99,9 +102,9 @@ func checkRequirements() (bool, []string) {
 		}
 	}
 	if ht {
-		results = append(results, "[✔] Hyper-Threading (HT)")
+		results = append(results, "[%s] Hyper-Threading (HT)")
 	} else {
-		results = append(results, "[✗] Hyper-Threading (HT)")
+		results = append(results, "[%s] Hyper-Threading (HT)")
 		ok = false
 	}
 
@@ -113,9 +116,9 @@ func checkRequirements() (bool, []string) {
 		}
 	}
 	if kvm {
-		results = append(results, "[✔] KVM kernel module loaded")
+		results = append(results, "[%s] KVM kernel module loaded")
 	} else {
-		results = append(results, "[✗] KVM kernel module loaded")
+		results = append(results, "[%s] KVM kernel module loaded")
 		ok = false
 	}
 
@@ -125,9 +128,9 @@ func checkRequirements() (bool, []string) {
 		libvirtOK = true
 	}
 	if libvirtOK {
-		results = append(results, "[✔] libvirt installed")
+		results = append(results, "[%s] libvirt installed")
 	} else {
-		results = append(results, "[✗] libvirt installed (sudo apt install libvirt-daemon-system)")
+		results = append(results, "[%s] libvirt installed (sudo apt install libvirt-daemon-system)")
 		ok = false
 	}
 
@@ -137,9 +140,9 @@ func checkRequirements() (bool, []string) {
 		qemuOK = true
 	}
 	if qemuOK {
-		results = append(results, "[✔] QEMU installed")
+		results = append(results, "[%s] QEMU installed")
 	} else {
-		results = append(results, "[✗] QEMU installed (sudo apt install qemu-kvm)")
+		results = append(results, "[%s] QEMU installed (sudo apt install qemu-kvm)")
 		ok = false
 	}
 
@@ -150,14 +153,14 @@ func checkRequirements() (bool, []string) {
 		freeGB := float64(fs.Bavail) * float64(fs.Bsize) / 1e9
 		if freeGB >= 20.0 {
 			diskOK = true
-			results = append(results, fmt.Sprintf("[✔] Disk space >= 20GB (%.1f GB free)", freeGB))
+			results = append(results, fmt.Sprintf("[%s] Disk space >= 20GB (%.1f GB free)", pass, freeGB))
 		} else {
-			results = append(results, fmt.Sprintf("[✗] Disk space >= 20GB (%.1f GB free)", freeGB))
+			results = append(results, fmt.Sprintf("[%s] Disk space >= 20GB (%.1f GB free)", fail, freeGB))
 			ok = false
 		}
 	}
 	if !diskOK {
-		results = append(results, "[✗] Disk space check failed")
+		results = append(results, "[%s] Disk space check failed")
 		ok = false
 	}
 

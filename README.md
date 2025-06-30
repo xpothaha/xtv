@@ -33,32 +33,54 @@ XTV เป็นระบบ Virtualization ที่พัฒนาด้วย
 - **Security Headers**: Comprehensive security headers
 - **Input Validation**: Strict input validation และ sanitization
 
-### 🟢 Real-time WebSocket Integration (NEW)
+### 🟢 Real-time WebSocket Integration
 - **VM Events**: Real-time updates for VM create/start/stop/delete via WebSocket (`/ws/vm`)
 - **GPU Events**: Real-time GPU usage and vGPU profile changes via WebSocket (`/ws/gpu`)
 - **Network Events**: Real-time network status, migration, and IP changes via WebSocket (`/ws/network`)
 - **Web UI**: Toast notifications and auto-refresh on real-time events in VMs, GPU, and Network pages
 
-## 🚀 Quick Start (Recommended for Ubuntu)
+## 🚀 Quick Start
 
-### วิธีที่ง่ายและเร็วที่สุด (ไม่ต้องใช้ Docker)
+### Prerequisites
+- Go 1.21+ 
+- libvirt และ QEMU-KVM (สำหรับ production)
+- Node.js 18+ (สำหรับ Web UI)
 
-#### 1. ใช้สคริปต์อัตโนมัติ (แนะนำ)
+### 1. รัน XTV Backend
+
+#### รันแบบ Production (libvirt จริง)
 ```bash
-./scripts/install_ubuntu.sh
+# รันด้วย Go โดยตรง (แนะนำ)
+go run main.go
+
+# หรือ build เป็น binary
+go build -o xtv
+./xtv
 ```
 
-#### 2. หรือ manual installation
+#### รันแบบ Development/Mock (ข้อมูลจำลอง)
 ```bash
-make build-optimized
-./build/xtv
+# รันด้วย Go โดยตรง
+go run main.go --mock
+
+# หรือ build เป็น binary
+go build -o xtv
+./xtv --mock
 ```
 
-**ไม่ต้องใช้ Docker ก็ใช้งาน XTV ได้เต็มฟีเจอร์**
+### 2. รัน Web UI (Optional)
+```bash
+cd webui
+npm install
+npm start
+```
 
-## 📖 Ubuntu Installation Guide
+เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
 
-สำหรับการติดตั้งบน Ubuntu อย่างละเอียด ดูได้ที่ [INSTALL_UBUNTU.md](INSTALL_UBUNTU.md)
+### 3. เข้าถึงระบบ
+- **API Server**: http://localhost:8080
+- **Web UI**: http://localhost:3000
+- **System Monitor**: http://localhost:8080/monitor
 
 ## 🔧 Configuration
 
@@ -82,68 +104,24 @@ make build-optimized
 - **Recommended**: 8GB+ RAM, 4+ CPU cores, 100GB+ storage
 - **Production**: 16GB+ RAM, 8+ CPU cores, 500GB+ storage
 
-## 📊 Performance Benchmarks
-
-### Benchmark Results
-- **API Throughput**: 10,000+ requests/second
-- **Memory Usage**: <100MB baseline, <500MB under load
-- **Latency**: <10ms average response time
-- **Concurrent Users**: 1000+ simultaneous connections
-
-### Run Benchmarks
-```bash
-# Run all benchmarks
-chmod +x scripts/benchmark.sh
-./scripts/benchmark.sh
-
-# Run specific benchmarks
-./scripts/benchmark.sh --api
-./scripts/benchmark.sh --memory
-./scripts/benchmark.sh --latency
-```
-
 ## 🛠️ Development
 
-### Build Options
+### รันแบบ Development (Hot Reload)
 ```bash
-# Standard build
-make build
+# ติดตั้ง air สำหรับ hot reload
+go install github.com/cosmtrek/air@latest
 
-# Optimized build (recommended)
-make build-optimized
-
-# Release build
-make build-release
-
-# Development mode
-make dev
+# รันด้วย air
+air
 ```
 
 ### Testing
 ```bash
-# Run tests
-make test
+# รัน tests
+go test ./...
 
-# Run tests with coverage
-make test-coverage
-
-# Run benchmarks
-make bench
-
-# Code quality checks
-make check
-```
-
-### Performance Profiling
-```bash
-# CPU profiling
-make profile
-
-# Memory profiling
-go tool pprof -http=:8080 mem.prof
-
-# Security scan
-make security
+# รัน tests พร้อม coverage
+go test -cover ./...
 ```
 
 ## 📈 Monitoring
@@ -242,7 +220,6 @@ export GOMEMLIMIT=1GiB
 - [Configuration Guide](docs/config.md)
 - [Performance Tuning](docs/performance.md)
 - [Security Guide](docs/security.md)
-- [Deployment Guide](docs/deployment.md)
 
 ## 🤝 Contributing
 
@@ -273,85 +250,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **XTV** - Empowering virtualization with performance and simplicity 🚀
 
-## วิธีรัน XTV Backend (API Server)
-
-### รันแบบ production (libvirt จริง)
-
-```bash
-# รันด้วย go (production/libvirt)
-go run main.go
-
-# หรือ build เป็น binary
- go build -o xtv
- ./xtv
-```
-
-- **ไม่ต้องใส่ build tag ใดๆ**
-- ใช้ LibVirtManager จริง (เชื่อม libvirt ได้)
-
-### รันแบบ dev/mock (mock manager)
-
-```bash
-# รันด้วย go (mock/dev)
-go run -tags mock main.go --mock
-
-# หรือ build เป็น binary mock/dev
-go build -tags mock -o xtv
-./xtv --mock
-```
-
-- **ต้องใส่ build tag `mock`**
-- ใช้ mock manager (ข้อมูลจำลอง เหมาะกับ dev/test UI)
-
-## การรัน XTV Backend (API Server) ด้วยโหมด Mock และ Production
-
-### รันแบบ mock (ข้อมูลจำลอง)
-
-```bash
-# รันด้วย go
- go run -tags mock main.go --mock
- go run main.go --mock
-
-# หรือถ้า build เป็น binary
- ./xtv --mock
-```
-
-### รันแบบ production (เชื่อมต่อ libvirt จริง)
-
-```bash
-# รันด้วย go
- go run main.go
-
-# หรือถ้า build เป็น binary
- ./xtv
-```
-
-- ถ้าใช้ `--mock` จะใช้ข้อมูลจำลอง (mockup) เหมาะกับการ dev/test UI
-- ถ้าไม่ใช้ `--mock` และมี LibVirt URI ใน config จะเชื่อมต่อ libvirt จริง
-- ถ้าไม่ใช้ `--mock` และไม่มี LibVirt URI จะ fallback เป็น mock อัตโนมัติ 
-
-## การรัน Web UI
-
-### 4. รัน development server
-
-```bash
-npm start
-```
-- เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
-
-### 5. (Optional) Build production
-
-```bash
-npm run build
-```
-
-แล้ว serve ด้วย static server เช่น
-
-```bash
-npx serve -s build
-```
-
-## ✅ System & Web UI Completeness (2024)
+## ✅ System & Web UI Completeness
 
 - ระบบ XTV พร้อมใช้งานจริง (single user, ไม่ต้องใช้ฐานข้อมูล)
 - Web UI ครบทุกฟีเจอร์: Dashboard, VMs, Network, GPU, ISO, Settings, Audit Log, Login, Installation
@@ -365,3 +264,80 @@ npx serve -s build
 - ติดตั้งง่าย, มี interactive CLI, config.json, รองรับ network migration
 
 > **หมายเหตุ:** ฟีเจอร์บางส่วน (Network Advanced, GPU Scheduling) เป็น mock UI พร้อมต่อยอดเชื่อมต่อ API จริงในอนาคต 
+
+## 🛡️ Installation & System Requirements Check
+
+XTV มาพร้อมระบบติดตั้งอัตโนมัติและตรวจสอบความพร้อมของระบบก่อนติดตั้งจริง เพื่อความปลอดภัยและประสิทธิภาพสูงสุด
+
+### ฟีเจอร์สำคัญ
+- **Auto System Requirements Check**: ตรวจสอบอัตโนมัติเมื่อรัน `go run main.go` หรือ `./xtv`
+  - RAM >= 4GB
+  - CPU Cores >= 2
+  - Virtualization (VT-x/AMD-V)
+  - IOMMU (VT-d/AMD-Vi)
+  - Hyper-Threading (HT)
+  - KVM kernel module
+  - libvirt, qemu ติดตั้งครบ
+  - Disk space >= 20GB
+- **แนะนำวิธีแก้ไข**: ถ้าไม่ผ่านจะแนะนำวิธีเปิด/ติดตั้งแต่ละ requirement
+- **ไม่อนุญาตติดตั้งถ้าไม่ครบ**: ระบบจะหยุดและแจ้งปัญหา
+- **ถามก่อน overwrite config.json**: ถ้ามีไฟล์อยู่แล้วจะถามก่อนเสมอ
+- **ตรวจสอบความแข็งแรงของรหัสผ่าน root**: ต้องมีตัวพิมพ์ใหญ่-เล็ก ตัวเลข และอักขระพิเศษ ความยาว >= 8 ตัวอักษร
+- **ซ่อน input password**: ขณะพิมพ์รหัสผ่านจะไม่แสดงบนหน้าจอ
+- **Log การติดตั้ง**: ทุกขั้นตอนจะถูกบันทึกลงไฟล์ install.log เพื่อความโปร่งใสและ debug ง่าย
+- **Flag --check**: สามารถรัน `go run main.go --check` เพื่อเช็ค requirement เฉยๆ ได้
+
+### หลักการทำงาน (Step-by-step)
+1. **รันโปรแกรมครั้งแรก** (ยังไม่มี config.json)
+2. ระบบเช็ค hardware/software requirements ทั้งหมด
+   - แสดงผลลิสต์ ✔/✗ พร้อมรายละเอียดและคำแนะนำ
+   - ถ้าไม่ครบ หยุดติดตั้งทันที
+3. ถ้าผ่าน requirement:
+   - ถามว่าจะ overwrite config.json เดิมหรือไม่ (ถ้ามี)
+   - ถาม server name, network (dhcp/static), static IP (ถ้าเลือก static)
+   - ถาม root password (ต้องแข็งแรงและซ่อน input)
+   - ยืนยันรหัสผ่านอีกครั้ง
+4. แสดง progress bar/step
+5. สร้าง config.json และ log install
+6. แสดงข้อมูลสรุปการติดตั้งและวิธีรัน server
+
+## 🚀 Deploy XTV บน Ubuntu Server
+
+### ขั้นตอนติดตั้งและรัน (Production)
+
+1. **อัปโหลดไฟล์โปรเจกต์ (ยกเว้น config.json) ไปยังเครื่อง Ubuntu**
+2. ติดตั้ง Go, libvirt, qemu, Node.js (ถ้าจะ build webui)
+   ```bash
+   sudo apt update
+   sudo apt install -y golang-go qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+   ```
+3. **ลบ config.json ถ้ามี**
+   ```bash
+   rm -f config.json
+   ```
+4. **Build หรือรันโปรแกรม**
+   - **รันแบบ Go ตรงๆ (แนะนำสำหรับติดตั้งครั้งแรก):**
+     ```bash
+     go run main.go
+     ```
+   - **หรือ build เป็น binary แล้วรัน:**
+     ```bash
+     go build -o xtv
+     ./xtv
+     ```
+5. **ทำตามขั้นตอนติดตั้งใน CLI**  
+   - ระบบจะเช็ค requirement และถามข้อมูล server name, network, password ฯลฯ
+   - ถ้าผ่าน requirement จะสร้าง config.json ใหม่ให้อัตโนมัติ
+
+6. **(Optional) Build Web UI**
+   ```bash
+   cd webui
+   npm install
+   npm run build
+   ```
+
+7. **เริ่มใช้งาน XTV**
+   - API: http://<server-ip>:8080
+   - Web UI: http://<server-ip>:8888
+
+--- 

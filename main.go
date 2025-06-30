@@ -1,3 +1,5 @@
+//go:build linux
+
 package main
 
 import (
@@ -21,6 +23,7 @@ import (
 	"xtv/internal/vm"
 
 	"github.com/shirou/gopsutil/mem"
+	"golang.org/x/term"
 )
 
 // Version and build info
@@ -81,10 +84,41 @@ func printSystemInfo() {
 	}
 }
 
+func isStrongPassword(pw string) bool {
+	if len(pw) < 8 {
+		return false
+	}
+	hasUpper, hasLower, hasDigit, hasSpecial := false, false, false, false
+	for _, c := range pw {
+		switch {
+		case 'A' <= c && c <= 'Z':
+			hasUpper = true
+		case 'a' <= c && c <= 'z':
+			hasLower = true
+		case '0' <= c && c <= '9':
+			hasDigit = true
+		case c >= 33 && c <= 47 || c >= 58 && c <= 64 || c >= 91 && c <= 96 || c >= 123 && c <= 126:
+			hasSpecial = true
+		}
+	}
+	return hasUpper && hasLower && hasDigit && hasSpecial
+}
+
+func logInstall(msg string) {
+	f, err := os.OpenFile("install.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err == nil {
+		defer f.Close()
+		t := time.Now().Format("2006-01-02 15:04:05")
+		f.WriteString("[" + t + "] " + msg + "\n")
+	}
+}
+
 func main() {
 	// เพิ่ม flag สำหรับ mock mode และ config path
 	useMock := flag.Bool("mock", false, "Use mock managers and data")
 	configPath := flag.String("config", "config.json", "Path to config file")
+	// เพิ่ม flag --check สำหรับเช็ค requirement เฉยๆ
+	checkOnly := flag.Bool("check", false, "Check system requirements only")
 	flag.Parse()
 
 	// Set up logging
@@ -94,8 +128,31 @@ func main() {
 	// Check if system is installed
 	cfg := config.Load(*configPath)
 
+	if *checkOnly {
+		ok, reqs := checkRequirements()
+		fmt.Println("\nSystem Requirements Check:")
+		for _, line := range reqs {
+			fmt.Println("  ", line)
+		}
+		if ok {
+			fmt.Println("\n✅ All requirements met!")
+		} else {
+			fmt.Println("\n❌ System requirements not met. Please fix the above issues.")
+		}
+		return
+	}
+
 	if !cfg.Install.Installed {
 		fmt.Println("=== XTV Installation ===")
+		ok, reqs := checkRequirements()
+		fmt.Println("\nSystem Requirements Check:")
+		for _, line := range reqs {
+			fmt.Println("  ", line)
+		}
+		if !ok {
+			fmt.Println("\n❌ System requirements not met. Please enable all required features before installing XTV.")
+			return
+		}
 		if err := runInstallation(cfg, *configPath); err != nil {
 			log.Fatalf("Installation failed: %v", err)
 		}
@@ -175,6 +232,18 @@ func runInstallation(cfg *config.Config, configPath string) error {
 	fmt.Println("Please provide the following information:")
 	fmt.Println()
 
+	// ถามก่อน overwrite config
+	if _, err := os.Stat(configPath); err == nil {
+		fmt.Printf("Config file %s already exists. Overwrite? (y/N): ", configPath)
+		ans, _ := reader.ReadString('\n')
+		ans = strings.TrimSpace(strings.ToLower(ans))
+		if ans != "y" && ans != "yes" {
+			fmt.Println("Installation cancelled.")
+			logInstall("User cancelled installation (config exists)")
+			return nil
+		}
+	}
+
 	// Server name
 	fmt.Print("Server name (e.g., server1.vpsgame.cloud): ")
 	serverName, err := reader.ReadString('\n')
@@ -210,27 +279,34 @@ func runInstallation(cfg *config.Config, configPath string) error {
 		}
 	}
 
-	// Password
+	// Password (ซ่อน input)
 	fmt.Print("Password for root user: ")
-	password, err := reader.ReadString('\n')
+	pwBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
 	if err != nil {
 		return fmt.Errorf("failed to read password: %v", err)
 	}
-	password = strings.TrimSpace(password)
+	password := strings.TrimSpace(string(pwBytes))
 	if password == "" {
 		return fmt.Errorf("password cannot be empty")
+	}
+	if !isStrongPassword(password) {
+		return fmt.Errorf("password must be at least 8 chars and include upper, lower, digit, special char")
 	}
 
 	// Confirm password
 	fmt.Print("Confirm password: ")
-	confirmPassword, err := reader.ReadString('\n')
+	pw2Bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
 	if err != nil {
 		return fmt.Errorf("failed to read confirm password: %v", err)
 	}
-	confirmPassword = strings.TrimSpace(confirmPassword)
+	confirmPassword := strings.TrimSpace(string(pw2Bytes))
 	if password != confirmPassword {
 		return fmt.Errorf("passwords do not match")
 	}
+
+	logInstall("Start installation")
 
 	// Show installation progress
 	fmt.Println("\nStarting installation...")
@@ -254,8 +330,11 @@ func runInstallation(cfg *config.Config, configPath string) error {
 
 	// Save configuration
 	if err := cfg.Save(configPath); err != nil {
+		logInstall("Failed to save config: " + err.Error())
 		return fmt.Errorf("failed to save configuration: %v", err)
 	}
+
+	logInstall("Installation completed for " + serverName)
 
 	// Show success message
 	fmt.Println("\n🎉 Installation completed successfully!")

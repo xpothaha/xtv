@@ -306,7 +306,8 @@ func (m *LibVirtManager) GetVMStats(id string) (*models.VMStats, error) {
 func (m *LibVirtManager) Shutdown() error {
 	close(m.ctx)
 	if m.conn != nil {
-		return m.conn.Close()
+		_, err := m.conn.Close()
+		return err
 	}
 	return nil
 }

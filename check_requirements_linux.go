@@ -16,8 +16,8 @@ func checkRequirements() (bool, []string) {
 	results := []string{}
 	ok := true
 
-	pass := "✔"
-	fail := "✗"
+	pass := "o"
+	fail := "x"
 
 	// 1. Check RAM >= 4GB
 	ramOK := false

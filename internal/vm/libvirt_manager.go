@@ -343,17 +343,24 @@ func (m *LibVirtManager) buildDomainXML(vmID string, req *models.VMCreateRequest
 	}
 	// CPU pinning
 	if len(req.CPU.Pinning) > 0 {
-		var pinList []libvirtxml.DomainVCPUPin
+		var pinList []libvirtxml.DomainCPUTuneVCPUPin
 		for vcpu, pcore := range req.CPU.Pinning {
-			pinList = append(pinList, libvirtxml.DomainVCPUPin{VCPU: uint(vcpu), CPUSet: fmt.Sprintf("%d", pcore)})
+			pinList = append(pinList, libvirtxml.DomainCPUTuneVCPUPin{VCPU: uint(vcpu), CPUSet: fmt.Sprintf("%d", pcore)})
 		}
 		domain.CPUTune = &libvirtxml.DomainCPUTune{VCPUPin: pinList}
 	}
 	// NUMA
 	if req.CPU.NUMANode > 0 {
 		cpuRange := fmt.Sprintf("0-%d", req.CPU.Cores*req.CPU.Sockets-1)
-		domain.CPU.NUMA = &libvirtxml.DomainNUMA{
-			Cells: []libvirtxml.DomainNUMACell{{ID: uint(req.CPU.NUMANode), CPUs: cpuRange, Memory: &libvirtxml.DomainNUMACellMemory{Value: uint(req.Memory.Size), Unit: "MiB"}}},
+		cellID := uint(req.CPU.NUMANode)
+		mem := uint(req.Memory.Size)
+		domain.CPU.Numa = &libvirtxml.DomainNuma{
+			Cell: []libvirtxml.DomainCell{{
+				ID:     &cellID,
+				CPUs:   cpuRange,
+				Memory: mem,
+				Unit:   "MiB",
+			}},
 		}
 	}
 	// Scheduling (affinity/anti-affinity/overcommit) - placeholder for now
@@ -474,7 +481,7 @@ func (m *LibVirtManager) buildVideoXML(gpu models.GPUConfig) []libvirtxml.Domain
 		videoType = gpu.Type
 	}
 	videos = append(videos, libvirtxml.DomainVideo{
-		Model: &libvirtxml.DomainVideoModel{Type: videoType},
+		Model: libvirtxml.DomainVideoModel{Type: videoType},
 	})
 	return videos
 }

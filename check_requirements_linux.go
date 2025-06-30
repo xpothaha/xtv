@@ -53,96 +53,87 @@ func checkRequirements() (bool, []string) {
 		ok = false
 	}
 
-	// 3. Check virtualization support (VT-x/AMD-V)
+	// 3. CPU Virtualization (VT-x/AMD-V)
 	virt := false
-	if data, err := os.ReadFile("/proc/cpuinfo"); err == nil {
-		cpuinfo := string(data)
-		if strings.Contains(cpuinfo, "vmx") || strings.Contains(cpuinfo, "svm") {
-			virt = true
-		}
+	if out, err := exec.Command("egrep", "-c", "(vmx|svm)", "/proc/cpuinfo").Output(); err == nil {
+		virt = strings.TrimSpace(string(out)) != "0"
 	}
 	if virt {
-		results = append(results, "[%s] CPU Virtualization (VT-x/AMD-V)")
+		results = append(results, fmt.Sprintf("[%s] CPU Virtualization (VT-x/AMD-V)", pass))
 	} else {
-		results = append(results, "[%s] CPU Virtualization (VT-x/AMD-V)")
+		results = append(results, fmt.Sprintf("[%s] CPU Virtualization (VT-x/AMD-V)", fail))
 		ok = false
 	}
 
-	// 4. Check IOMMU (Intel VT-d/AMD-Vi)
+	// 4. IOMMU (VT-d/AMD-Vi)
 	iommu := false
-	if data, err := os.ReadFile("/proc/cmdline"); err == nil {
-		cmdline := string(data)
-		if strings.Contains(cmdline, "intel_iommu=on") || strings.Contains(cmdline, "amd_iommu=on") {
+	if out, err := exec.Command("dmesg").Output(); err == nil {
+		iommu = strings.Contains(string(out), "DMAR") || strings.Contains(string(out), "IOMMU")
+	}
+	if cmdline, err := os.ReadFile("/proc/cmdline"); err == nil {
+		if strings.Contains(string(cmdline), "intel_iommu=on") || strings.Contains(string(cmdline), "amd_iommu=on") {
 			iommu = true
 		}
 	}
 	if iommu {
-		results = append(results, "[%s] IOMMU (VT-d/AMD-Vi)")
+		results = append(results, fmt.Sprintf("[%s] IOMMU (VT-d/AMD-Vi)", pass))
 	} else {
-		results = append(results, "[%s] IOMMU (VT-d/AMD-Vi)")
+		results = append(results, fmt.Sprintf("[%s] IOMMU (VT-d/AMD-Vi)", fail))
 		ok = false
 	}
 
-	// 5. Check Hyper-Threading (HT)
+	// 5. Hyper-Threading (HT)
 	ht := false
-	if data, err := os.ReadFile("/proc/cpuinfo"); err == nil {
-		lines := strings.Split(string(data), "\n")
-		coreCount := 0
-		cpuCount := 0
-		for _, line := range lines {
-			if strings.HasPrefix(line, "cpu cores") {
-				coreCount++
+	if out, err := exec.Command("lscpu").Output(); err == nil {
+		for _, line := range strings.Split(string(out), "\n") {
+			if strings.HasPrefix(line, "Thread(s) per core:") {
+				fields := strings.Fields(line)
+				if len(fields) >= 4 && fields[3] != "1" {
+					ht = true
+				}
 			}
-			if strings.HasPrefix(line, "processor") {
-				cpuCount++
-			}
-		}
-		if cpuCount > coreCount {
-			ht = true
 		}
 	}
 	if ht {
-		results = append(results, "[%s] Hyper-Threading (HT)")
+		results = append(results, fmt.Sprintf("[%s] Hyper-Threading (HT)", pass))
 	} else {
-		results = append(results, "[%s] Hyper-Threading (HT)")
+		results = append(results, fmt.Sprintf("[%s] Hyper-Threading (HT)", fail))
 		ok = false
 	}
 
-	// 6. Check KVM kernel module
+	// 6. KVM kernel module loaded
 	kvm := false
-	if data, err := os.ReadFile("/proc/modules"); err == nil {
-		if strings.Contains(string(data), "kvm") {
-			kvm = true
-		}
+	if out, err := exec.Command("lsmod").Output(); err == nil {
+		kvm = strings.Contains(string(out), "kvm")
 	}
 	if kvm {
-		results = append(results, "[%s] KVM kernel module loaded")
+		results = append(results, fmt.Sprintf("[%s] KVM kernel module loaded", pass))
 	} else {
-		results = append(results, "[%s] KVM kernel module loaded")
+		results = append(results, fmt.Sprintf("[%s] KVM kernel module loaded", fail))
 		ok = false
 	}
 
-	// 7. Check libvirt installed
+	// 7. libvirt installed
 	libvirtOK := false
 	if _, err := exec.LookPath("libvirtd"); err == nil {
 		libvirtOK = true
 	}
 	if libvirtOK {
-		results = append(results, "[%s] libvirt installed")
+		results = append(results, fmt.Sprintf("[%s] libvirt installed", pass))
 	} else {
-		results = append(results, "[%s] libvirt installed (sudo apt install libvirt-daemon-system)")
+		results = append(results, fmt.Sprintf("[%s] libvirt installed", fail))
 		ok = false
 	}
 
-	// 8. Check qemu installed
+	// 8. QEMU installed
 	qemuOK := false
 	if _, err := exec.LookPath("qemu-system-x86_64"); err == nil {
 		qemuOK = true
 	}
 	if qemuOK {
-		results = append(results, "[%s] QEMU installed")
+		results = append(results, fmt.Sprintf("[%s] QEMU installed", pass))
 	} else {
-		results = append(results, "[%s] QEMU installed (sudo apt install qemu-kvm)")
+		results = append(results, fmt.Sprintf("[%s] QEMU installed", fail))
 		ok = false
 	}
 
@@ -160,7 +151,7 @@ func checkRequirements() (bool, []string) {
 		}
 	}
 	if !diskOK {
-		results = append(results, "[%s] Disk space check failed")
+		results = append(results, fmt.Sprintf("[%s] Disk space check failed", fail))
 		ok = false
 	}
 

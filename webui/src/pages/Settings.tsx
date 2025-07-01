@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, InputNumber, Switch, Button, Divider, message, Space, Row, Col, Tabs, Modal, Progress, Statistic } from 'antd';
 import { SaveOutlined, ReloadOutlined, UserOutlined, LockOutlined, KeyOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { useChangePassword, useResetPassword, useQuota, useLogout } from '../hooks/useAuth';
@@ -71,322 +70,293 @@ const Settings: React.FC = () => {
 
   return (
     <PageContainer>
-      <Card>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2>System Settings</h2>
-          <Space>
-            <Button icon={<ReloadOutlined />} onClick={handleReset}>
-              Reset
-            </Button>
-            <Button type="primary" icon={<SaveOutlined />} loading={loading} onClick={() => form.submit()}>
-              Save Settings
-            </Button>
-          </Space>
-        </div>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>System Settings</h2>
+        <Space>
+          <Button icon={<ReloadOutlined />} onClick={handleReset}>
+            Reset
+          </Button>
+          <Button type="primary" icon={<SaveOutlined />} loading={loading} onClick={() => form.submit()}>
+            Save Settings
+          </Button>
+        </Space>
+      </div>
 
-        <Tabs defaultActiveKey="general">
-          <TabPane tab="General" key="general">
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleSave}
-              initialValues={{
-                api_port: 8080,
-                max_vms: 10,
-                enable_monitoring: true,
-                enable_audit_logs: true,
-                default_memory: 2048,
-                default_cpus: 2,
-                storage_path: '/var/lib/xtv',
-                backup_enabled: false,
-                auto_start_vms: false,
-              }}
-            >
-              <Row gutter={24}>
-                <Col xs={24} md={12}>
-                  <Card title="API Configuration" size="small">
-                    <Form.Item name="api_port" label="API Port">
-                      <InputNumber min={1024} max={65535} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="api_host" label="API Host">
-                      <Input placeholder="0.0.0.0" />
-                    </Form.Item>
-                    <Form.Item name="enable_cors" label="Enable CORS" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                  </Card>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Card title="VM Limits" size="small">
-                    <Form.Item name="max_vms" label="Maximum VMs">
-                      <InputNumber min={1} max={100} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="default_memory" label="Default Memory (MB)">
-                      <InputNumber min={512} max={32768} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="default_cpus" label="Default CPUs">
-                      <InputNumber min={1} max={32} style={{ width: '100%' }} />
-                    </Form.Item>
-                  </Card>
-                </Col>
-              </Row>
-
-              <Divider />
-
-              <Row gutter={24}>
-                <Col xs={24} md={12}>
-                  <Card title="Storage" size="small">
-                    <Form.Item name="storage_path" label="Storage Path">
-                      <Input />
-                    </Form.Item>
-                    <Form.Item name="backup_enabled" label="Enable Backups" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                    <Form.Item name="backup_path" label="Backup Path">
-                      <Input />
-                    </Form.Item>
-                  </Card>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Card title="Monitoring" size="small">
-                    <Form.Item name="enable_monitoring" label="Enable System Monitoring" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                    <Form.Item name="monitoring_interval" label="Monitoring Interval (seconds)">
-                      <InputNumber min={5} max={300} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="enable_audit_logs" label="Enable Audit Logs" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                  </Card>
-                </Col>
-              </Row>
-
-              <Divider />
-
-              <Row gutter={24}>
-                <Col xs={24} md={12}>
-                  <Card title="VM Behavior" size="small">
-                    <Form.Item name="auto_start_vms" label="Auto-start VMs on Boot" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                    <Form.Item name="vm_timeout" label="VM Operation Timeout (seconds)">
-                      <InputNumber min={30} max={300} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="enable_vnc" label="Enable VNC Console" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                  </Card>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Card title="Security" size="small">
-                    <Form.Item name="enable_ssl" label="Enable SSL/TLS" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                    <Form.Item name="ssl_cert_path" label="SSL Certificate Path">
-                      <Input />
-                    </Form.Item>
-                    <Form.Item name="ssl_key_path" label="SSL Private Key Path">
-                      <Input />
-                    </Form.Item>
-                  </Card>
-                </Col>
-              </Row>
-            </Form>
-          </TabPane>
-
-          <TabPane tab="Authentication" key="auth">
+      <Tabs defaultActiveKey="general">
+        <TabPane tab="General" key="general">
+          <form
+            onFinish={handleSave}
+            initialValues={{
+              api_port: 8080,
+              max_vms: 10,
+              enable_monitoring: true,
+              enable_audit_logs: true,
+              default_memory: 2048,
+              default_cpus: 2,
+              storage_path: '/var/lib/xtv',
+              backup_enabled: false,
+              auto_start_vms: false,
+            }}
+          >
             <Row gutter={24}>
               <Col xs={24} md={12}>
-                <Card title="Password Management" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    <Button 
-                      icon={<LockOutlined />} 
-                      onClick={() => setPasswordModalVisible(true)}
-                      block
-                    >
-                      Change Password
-                    </Button>
-                    <Button 
-                      icon={<KeyOutlined />} 
-                      onClick={() => setPasswordModalVisible(true)}
-                      block
-                    >
-                      Reset Password
-                    </Button>
-                    <Button 
-                      icon={<UserOutlined />} 
-                      onClick={handleLogout}
-                      danger
-                      block
-                    >
-                      Logout
-                    </Button>
-                  </Space>
-                </Card>
+                <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                  <h3>API Configuration</h3>
+                  <Form.Item name="api_port" label="API Port">
+                    <input type="number" min={1024} max={65535} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="api_host" label="API Host">
+                    <input placeholder="0.0.0.0" />
+                  </Form.Item>
+                  <Form.Item name="enable_cors" label="Enable CORS" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                </div>
               </Col>
               <Col xs={24} md={12}>
-                <Card title="User Quota" size="small" loading={quotaLoading}>
-                  {quotaInfo && (
-                    <div>
-                      <Row gutter={16}>
-                        <Col span={12}>
-                          <Statistic
-                            title="VMs"
-                            value={quotaInfo.usage.vms}
-                            suffix={`/ ${quotaInfo.quota.max_vms}`}
-                          />
-                          <Progress 
-                            percent={Math.round((quotaInfo.usage.vms / quotaInfo.quota.max_vms) * 100)} 
-                            size="small" 
-                          />
-                        </Col>
-                        <Col span={12}>
-                          <Statistic
-                            title="CPU"
-                            value={quotaInfo.usage.cpu}
-                            suffix={`/ ${quotaInfo.quota.max_cpu}`}
-                          />
-                          <Progress 
-                            percent={Math.round((quotaInfo.usage.cpu / quotaInfo.quota.max_cpu) * 100)} 
-                            size="small" 
-                          />
-                        </Col>
-                      </Row>
-                      <Row gutter={16} style={{ marginTop: 16 }}>
-                        <Col span={12}>
-                          <Statistic
-                            title="Memory (GB)"
-                            value={quotaInfo.usage.memory}
-                            suffix={`/ ${quotaInfo.quota.max_memory}`}
-                          />
-                          <Progress 
-                            percent={Math.round((quotaInfo.usage.memory / quotaInfo.quota.max_memory) * 100)} 
-                            size="small" 
-                          />
-                        </Col>
-                        <Col span={12}>
-                          <Statistic
-                            title="Storage (GB)"
-                            value={quotaInfo.usage.storage}
-                            suffix={`/ ${quotaInfo.quota.max_storage}`}
-                          />
-                          <Progress 
-                            percent={Math.round((quotaInfo.usage.storage / quotaInfo.quota.max_storage) * 100)} 
-                            size="small" 
-                          />
-                        </Col>
-                      </Row>
-                    </div>
-                  )}
-                </Card>
+                <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                  <h3>VM Limits</h3>
+                  <Form.Item name="max_vms" label="Maximum VMs">
+                    <input type="number" min={1} max={100} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="default_memory" label="Default Memory (MB)">
+                    <input type="number" min={512} max={32768} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="default_cpus" label="Default CPUs">
+                    <input type="number" min={1} max={32} style={{ width: '100%' }} />
+                  </Form.Item>
+                </div>
               </Col>
             </Row>
+
+            <Divider />
+
+            <Row gutter={24}>
+              <Col xs={24} md={12}>
+                <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                  <h3>Storage</h3>
+                  <Form.Item name="storage_path" label="Storage Path">
+                    <input />
+                  </Form.Item>
+                  <Form.Item name="backup_enabled" label="Enable Backups" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                  <Form.Item name="backup_path" label="Backup Path">
+                    <input />
+                  </Form.Item>
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                  <h3>Monitoring</h3>
+                  <Form.Item name="enable_monitoring" label="Enable System Monitoring" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                  <Form.Item name="monitoring_interval" label="Monitoring Interval (seconds)">
+                    <input type="number" min={5} max={300} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="enable_audit_logs" label="Enable Audit Logs" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                </div>
+              </Col>
+            </Row>
+
+            <Divider />
+
+            <Row gutter={24}>
+              <Col xs={24} md={12}>
+                <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                  <h3>VM Behavior</h3>
+                  <Form.Item name="auto_start_vms" label="Auto-start VMs on Boot" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                  <Form.Item name="vm_timeout" label="VM Operation Timeout (seconds)">
+                    <input type="number" min={30} max={300} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="enable_vnc" label="Enable VNC Console" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                  <h3>Security</h3>
+                  <Form.Item name="enable_ssl" label="Enable SSL/TLS" valuePropName="checked">
+                    <input type="checkbox" />
+                  </Form.Item>
+                  <Form.Item name="ssl_cert_path" label="SSL Certificate Path">
+                    <input />
+                  </Form.Item>
+                  <Form.Item name="ssl_key_path" label="SSL Private Key Path">
+                    <input />
+                  </Form.Item>
+                </div>
+              </Col>
+            </Row>
+          </form>
+        </TabPane>
+
+        <TabPane tab="Authentication" key="auth">
+          <Row gutter={24}>
+            <Col xs={24} md={12}>
+              <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                <h3>Password Management</h3>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <Button 
+                    icon={<LockOutlined />} 
+                    onClick={() => setPasswordModalVisible(true)}
+                    block
+                  >
+                    Change Password
+                  </Button>
+                  <Button 
+                    icon={<KeyOutlined />} 
+                    onClick={() => setPasswordModalVisible(true)}
+                    block
+                  >
+                    Reset Password
+                  </Button>
+                  <Button 
+                    icon={<UserOutlined />} 
+                    onClick={handleLogout}
+                    danger
+                    block
+                  >
+                    Logout
+                  </Button>
+                </Space>
+              </div>
+            </Col>
+            <Col xs={24} md={12}>
+              <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+                <h3>User Quota</h3>
+                {quotaInfo && (
+                  <div>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.vms}</span>
+                        <progress value={quotaInfo.usage.vms} max={quotaInfo.quota.max_vms} />
+                      </Col>
+                      <Col span={12}>
+                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.cpu}</span>
+                        <progress value={quotaInfo.usage.cpu} max={quotaInfo.quota.max_cpu} />
+                      </Col>
+                    </Row>
+                    <Row gutter={16} style={{ marginTop: 16 }}>
+                      <Col span={12}>
+                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.memory}</span>
+                        <progress value={quotaInfo.usage.memory} max={quotaInfo.quota.max_memory} />
+                      </Col>
+                      <Col span={12}>
+                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.storage}</span>
+                        <progress value={quotaInfo.usage.storage} max={quotaInfo.quota.max_storage} />
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+              </div>
+            </Col>
+          </Row>
+        </TabPane>
+      </Tabs>
+
+      {/* Password Change Modal */}
+      <div style={{ background: '#fff', border: '1px solid #ccc', padding: 16 }}>
+        <Tabs defaultActiveKey="change">
+          <TabPane tab="Change Password" key="change">
+            <form onFinish={handleChangePassword} layout="vertical">
+              <Form.Item
+                name="current_password"
+                label="Current Password"
+                rules={[{ required: true, message: 'Please enter current password' }]}
+              >
+                <input type="password" />
+              </Form.Item>
+              <Form.Item
+                name="new_password"
+                label="New Password"
+                rules={[
+                  { required: true, message: 'Please enter new password' },
+                  { min: 8, message: 'Password must be at least 8 characters' }
+                ]}
+              >
+                <input type="password" />
+              </Form.Item>
+              <Form.Item
+                name="confirm_password"
+                label="Confirm Password"
+                dependencies={['new_password']}
+                rules={[
+                  { required: true, message: 'Please confirm password' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('new_password') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('Passwords do not match'));
+                    },
+                  }),
+                ]}
+              >
+                <input type="password" />
+              </Form.Item>
+              <Form.Item>
+                <Space>
+                  <Button type="primary" htmlType="submit" loading={changePasswordMutation.isPending}>
+                    Change Password
+                  </Button>
+                  <Button onClick={() => setPasswordModalVisible(false)}>
+                    Cancel
+                  </Button>
+                </Space>
+              </Form.Item>
+            </form>
+          </TabPane>
+          <TabPane tab="Reset Password" key="reset">
+            <form onFinish={handleResetPassword} layout="vertical">
+              <Form.Item
+                name="new_password"
+                label="New Password"
+                rules={[
+                  { required: true, message: 'Please enter new password' },
+                  { min: 8, message: 'Password must be at least 8 characters' }
+                ]}
+              >
+                <input type="password" />
+              </Form.Item>
+              <Form.Item
+                name="confirm_password"
+                label="Confirm Password"
+                dependencies={['new_password']}
+                rules={[
+                  { required: true, message: 'Please confirm password' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('new_password') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('Passwords do not match'));
+                    },
+                  }),
+                ]}
+              >
+                <input type="password" />
+              </Form.Item>
+              <Form.Item>
+                <Space>
+                  <Button type="primary" htmlType="submit" loading={resetPasswordMutation.isPending}>
+                    Reset Password
+                  </Button>
+                  <Button onClick={() => setPasswordModalVisible(false)}>
+                    Cancel
+                  </Button>
+                </Space>
+              </Form.Item>
+            </form>
           </TabPane>
         </Tabs>
-
-        {/* Password Change Modal */}
-        <Modal
-          title="Change Password"
-          open={passwordModalVisible}
-          onCancel={() => setPasswordModalVisible(false)}
-          footer={null}
-        >
-          <Tabs defaultActiveKey="change">
-            <TabPane tab="Change Password" key="change">
-              <Form form={passwordForm} onFinish={handleChangePassword} layout="vertical">
-                <Form.Item
-                  name="current_password"
-                  label="Current Password"
-                  rules={[{ required: true, message: 'Please enter current password' }]}
-                >
-                  <Input.Password />
-                </Form.Item>
-                <Form.Item
-                  name="new_password"
-                  label="New Password"
-                  rules={[
-                    { required: true, message: 'Please enter new password' },
-                    { min: 8, message: 'Password must be at least 8 characters' }
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-                <Form.Item
-                  name="confirm_password"
-                  label="Confirm Password"
-                  dependencies={['new_password']}
-                  rules={[
-                    { required: true, message: 'Please confirm password' },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue('new_password') === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(new Error('Passwords do not match'));
-                      },
-                    }),
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-                <Form.Item>
-                  <Space>
-                    <Button type="primary" htmlType="submit" loading={changePasswordMutation.isPending}>
-                      Change Password
-                    </Button>
-                    <Button onClick={() => setPasswordModalVisible(false)}>
-                      Cancel
-                    </Button>
-                  </Space>
-                </Form.Item>
-              </Form>
-            </TabPane>
-            <TabPane tab="Reset Password" key="reset">
-              <Form form={passwordForm} onFinish={handleResetPassword} layout="vertical">
-                <Form.Item
-                  name="new_password"
-                  label="New Password"
-                  rules={[
-                    { required: true, message: 'Please enter new password' },
-                    { min: 8, message: 'Password must be at least 8 characters' }
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-                <Form.Item
-                  name="confirm_password"
-                  label="Confirm Password"
-                  dependencies={['new_password']}
-                  rules={[
-                    { required: true, message: 'Please confirm password' },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue('new_password') === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(new Error('Passwords do not match'));
-                      },
-                    }),
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-                <Form.Item>
-                  <Space>
-                    <Button type="primary" htmlType="submit" loading={resetPasswordMutation.isPending}>
-                      Reset Password
-                    </Button>
-                    <Button onClick={() => setPasswordModalVisible(false)}>
-                      Cancel
-                    </Button>
-                  </Space>
-                </Form.Item>
-              </Form>
-            </TabPane>
-          </Tabs>
-        </Modal>
-      </Card>
+      </div>
     </PageContainer>
   );
 };

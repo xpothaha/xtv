@@ -1,10 +1,7 @@
 import React from 'react';
-import { Form, Input, Button, Card, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useLogin } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-
-const { Title, Text } = Typography;
 
 const Login: React.FC = () => {
   const loginMutation = useLogin();
@@ -28,42 +25,43 @@ const Login: React.FC = () => {
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
-      <Card style={{ width: 400, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+      <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <strong style={{ color: '#1890ff', fontSize: '24px' }}>XTV</strong>
           <Title level={2} style={{ color: '#1890ff' }}>XTV</Title>
           <Text type="secondary">Virtualization Platform</Text>
         </div>
 
-        <Form
+        <form
           name="login"
           onFinish={onFinish}
           autoComplete="off"
           layout="vertical"
         >
-          <Form.Item
+          <form.Item
             name="username"
             rules={[{ required: true, message: 'Please input your username!' }]}
           >
-            <Input 
+            <input 
               prefix={<UserOutlined />} 
               placeholder="Username" 
               size="large"
             />
-          </Form.Item>
+          </form.Item>
 
-          <Form.Item
+          <form.Item
             name="password"
             rules={[{ required: true, message: 'Please input your password!' }]}
           >
-            <Input.Password 
+            <input.Password 
               prefix={<LockOutlined />} 
               placeholder="Password" 
               size="large"
             />
-          </Form.Item>
+          </form.Item>
 
-          <Form.Item>
-            <Button 
+          <form.Item>
+            <button 
               type="primary" 
               htmlType="submit" 
               size="large" 
@@ -71,14 +69,14 @@ const Login: React.FC = () => {
               loading={loginMutation.isPending}
             >
               Log in
-            </Button>
-          </Form.Item>
-        </Form>
+            </button>
+          </form.Item>
+        </form>
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <Text type="secondary">Default: root / your-installation-password</Text>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

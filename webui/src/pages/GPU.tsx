@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Progress, Table, Button, Modal, Form, Input, InputNumber, message, Popconfirm, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useGPUs, useVGPUProfiles, useCreateVGPUProfile, useDeleteVGPUProfile } from '../hooks/useGPU';
 import { useGPUEvents } from '../hooks/useGPUEvents';
@@ -48,10 +47,7 @@ const GPU: React.FC = () => {
       key: 'memory',
       render: (gpu: any) => (
         <div>
-          <Progress 
-            percent={Math.round((gpu.memory_used / gpu.memory_total) * 100)} 
-            format={(percent) => `${percent}%`}
-          />
+          <progress value={gpu.memory_used} max={gpu.memory_total} />
           <div style={{ fontSize: '12px', color: '#666' }}>
             {Math.round(gpu.memory_used / 1024 / 1024)}MB / {Math.round(gpu.memory_total / 1024 / 1024)}MB
           </div>
@@ -62,7 +58,7 @@ const GPU: React.FC = () => {
       title: 'Utilization',
       dataIndex: 'utilization',
       key: 'utilization',
-      render: (util: number) => <Progress percent={util} size="small" />,
+      render: (util: number) => <progress value={util} max={100} />,
     },
     {
       title: 'Temperature',
@@ -103,16 +99,9 @@ const GPU: React.FC = () => {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: any) => (
-        <Popconfirm
-          title="Are you sure you want to delete this profile?"
-          onConfirm={() => handleDeleteProfile(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button icon={<DeleteOutlined />} size="small" danger>
-            Delete
-          </Button>
-        </Popconfirm>
+        <span>
+          {window.confirm('Are you sure you want to delete this profile?')}
+        </span>
       ),
     },
   ];
@@ -132,65 +121,107 @@ const GPU: React.FC = () => {
     <PageContainer>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>GPU Monitoring & Management</h2>
-        <Button icon={<ReloadOutlined />} onClick={() => refetchGPUs()}>
+        <button onClick={() => refetchGPUs()}>
           Refresh
-        </Button>
+        </button>
       </div>
 
-      <Row gutter={24}>
-        <Col xs={24} lg={16}>
-          <Card title="GPU Status" loading={gpusLoading}>
-            <Table
-              columns={gpuColumns}
-              dataSource={gpus}
-              rowKey="id"
-              pagination={false}
-              size="small"
-            />
-          </Card>
-        </Col>
-        <Col xs={24} lg={8}>
-          <Card title="VGPU Profiles" loading={profilesLoading}>
-            <div style={{ marginBottom: 16 }}>
-              <Button 
-                type="primary" 
-                icon={<PlusOutlined />}
-                onClick={() => setProfileModalVisible(true)}
-                block
-              >
-                Create Profile
-              </Button>
-            </div>
-            <Table
-              columns={profileColumns}
-              dataSource={vgpuProfiles}
-              rowKey="id"
-              pagination={false}
-              size="small"
-            />
-          </Card>
-        </Col>
-      </Row>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: 'calc(100% - 200px)' }}>
+          <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>GPU</th>
+                  <th>Memory Usage</th>
+                  <th>Utilization</th>
+                  <th>Temperature</th>
+                  <th>Power</th>
+                  <th>Driver</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gpus.map((gpu) => (
+                  <tr key={gpu.id}>
+                    <td>{gpu.name}</td>
+                    <td>
+                      <progress value={gpu.memory_used} max={gpu.memory_total} />
+                      <div style={{ fontSize: '12px', color: '#666' }}>
+                        {Math.round(gpu.memory_used / 1024 / 1024)}MB / {Math.round(gpu.memory_total / 1024 / 1024)}MB
+                      </div>
+                    </td>
+                    <td>
+                      <progress value={gpu.utilization} max={100} />
+                    </td>
+                    <td>{gpu.temperature}°C</td>
+                    <td>{gpu.power_usage}W</td>
+                    <td>{gpu.driver_version}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style={{ width: '200px' }}>
+          <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
+            <button onClick={() => setProfileModalVisible(true)}>
+              Create Profile
+            </button>
+            <table>
+              <thead>
+                <tr>
+                  <th>Profile Name</th>
+                  <th>Memory (MB)</th>
+                  <th>Instances</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vgpuProfiles.map((profile) => (
+                  <tr key={profile.id}>
+                    <td>{profile.name}</td>
+                    <td>{profile.memory}</td>
+                    <td>{profile.current_instances}/{profile.max_instances}</td>
+                    <td>
+                      <span>
+                        {window.confirm('Are you sure you want to delete this profile?')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-      <Card title="GPU Scheduling / Allocation" style={{ marginTop: 24 }}>
-        <Table
-          columns={[
-            { title: 'VM', dataIndex: 'vm', key: 'vm' },
-            { title: 'GPU', dataIndex: 'gpu', key: 'gpu' },
-            { title: 'Profile', dataIndex: 'profile', key: 'profile' },
-            { title: 'Status', dataIndex: 'status', key: 'status', render: (status: string) => (
-              <span style={{ color: status === 'active' ? '#3f8600' : '#faad14' }}>{status}</span>
-            ) },
-            { title: 'Action', key: 'action', render: (_: any, record: any) => (
-              <Button danger size="small" onClick={() => setGpuAllocations(gpuAllocations.filter(a => a.id !== record.id))}>Release</Button>
-            ) },
-          ]}
-          dataSource={gpuAllocations}
-          rowKey="id"
-          pagination={false}
-          size="small"
-        />
-        <Button style={{ marginTop: 12 }} type="dashed" onClick={() => {
+      <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8, marginTop: 24 }}>
+        <h3>GPU Scheduling / Allocation</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>VM</th>
+              <th>GPU</th>
+              <th>Profile</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {gpuAllocations.map((allocation) => (
+              <tr key={allocation.id}>
+                <td>{allocation.vm}</td>
+                <td>{allocation.gpu}</td>
+                <td>{allocation.profile}</td>
+                <td style={{ color: allocation.status === 'active' ? '#3f8600' : '#faad14' }}>{allocation.status}</td>
+                <td>
+                  <button onClick={() => setGpuAllocations(gpuAllocations.filter(a => a.id !== allocation.id))}>Release</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button onClick={() => {
           const vm = prompt('Assign to VM:');
           const gpu = prompt('GPU:');
           const profile = prompt('Profile:');
@@ -199,49 +230,45 @@ const GPU: React.FC = () => {
               id: Date.now(), vm, gpu, profile, status: 'active'
             }]);
           }
-        }}>+ Assign vGPU to VM</Button>
-      </Card>
+        }}>+ Assign vGPU to VM</button>
+      </div>
 
-      <Modal
-        title="Create VGPU Profile"
-        open={profileModalVisible}
-        onCancel={() => setProfileModalVisible(false)}
-        footer={null}
-      >
+      <div style={{ background: '#fff', border: '1px solid #ccc', padding: 16, marginTop: 24 }}>
+        <h3>Create VGPU Profile</h3>
         <Form form={form} onFinish={handleCreateProfile} layout="vertical">
           <Form.Item
             name="name"
             label="Profile Name"
             rules={[{ required: true, message: 'Please enter profile name' }]}
           >
-            <Input />
+            <input />
           </Form.Item>
           <Form.Item
             name="memory"
             label="Memory (MB)"
             rules={[{ required: true, message: 'Please enter memory size' }]}
           >
-            <InputNumber min={1} style={{ width: '100%' }} />
+            <input type="number" min={1} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
             name="max_instances"
             label="Max Instances"
             rules={[{ required: true, message: 'Please enter max instances' }]}
           >
-            <InputNumber min={1} style={{ width: '100%' }} />
+            <input type="number" min={1} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button type="primary" htmlType="submit">
                 Create
-              </Button>
-              <Button onClick={() => setProfileModalVisible(false)}>
+              </button>
+              <button onClick={() => setProfileModalVisible(false)}>
                 Cancel
-              </Button>
-            </Space>
+              </button>
+            </div>
           </Form.Item>
         </Form>
-      </Modal>
+      </div>
     </PageContainer>
   );
 };

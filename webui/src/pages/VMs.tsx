@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, Card, Modal, message, Popconfirm, Tag, Progress, Statistic, Row, Col } from 'antd';
 import { 
   PlayCircleOutlined, 
   PauseCircleOutlined, 
@@ -10,7 +9,6 @@ import {
 } from '@ant-design/icons';
 import { useVMs, useStartVM, useStopVM, useRestartVM, usePauseVM, useResumeVM, useDeleteVM, useVMStats } from '../hooks/useVMs';
 import { useVMEvents } from '../hooks/useVMEvents';
-import { PageContainer } from '@ant-design/pro-layout';
 
 const VMs: React.FC = () => {
   const { data: vms, isLoading, refetch } = useVMs();
@@ -28,31 +26,31 @@ const VMs: React.FC = () => {
       switch (operation) {
         case 'start':
           await startVMMutation.mutateAsync(vmId);
-          message.success('VM started successfully');
+          alert('VM started successfully');
           break;
         case 'stop':
           await stopVMMutation.mutateAsync(vmId);
-          message.success('VM stopped successfully');
+          alert('VM stopped successfully');
           break;
         case 'restart':
           await restartVMMutation.mutateAsync(vmId);
-          message.success('VM restarted successfully');
+          alert('VM restarted successfully');
           break;
         case 'pause':
           await pauseVMMutation.mutateAsync(vmId);
-          message.success('VM paused successfully');
+          alert('VM paused successfully');
           break;
         case 'resume':
           await resumeVMMutation.mutateAsync(vmId);
-          message.success('VM resumed successfully');
+          alert('VM resumed successfully');
           break;
         case 'delete':
           await deleteVMMutation.mutateAsync(vmId);
-          message.success('VM deleted successfully');
+          alert('VM deleted successfully');
           break;
       }
     } catch (error) {
-      message.error(`Failed to ${operation} VM`);
+      alert(`Failed to ${operation} VM`);
     }
   };
 
@@ -82,9 +80,9 @@ const VMs: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
+        <span style={{background: '#eee', borderRadius: 4, padding: '2px 8px'}}>
           {status.toUpperCase()}
-        </Tag>
+        </span>
       ),
     },
     {
@@ -124,135 +122,181 @@ const VMs: React.FC = () => {
       title: 'Actions',
       key: 'actions',
       render: (record: any) => (
-        <Space>
+        <div>
           {record.status === 'stopped' && (
-            <Button 
-              icon={<PlayCircleOutlined />} 
-              size="small" 
-              type="primary"
+            <button 
               onClick={() => handleVMOperation('start', record.id)}
-              loading={startVMMutation.isPending}
+              disabled={startVMMutation.isPending}
             >
               Start
-            </Button>
+            </button>
           )}
           
           {record.status === 'running' && (
             <>
-              <Button 
-                icon={<PauseCircleOutlined />} 
-                size="small"
+              <button 
                 onClick={() => handleVMOperation('pause', record.id)}
-                loading={pauseVMMutation.isPending}
+                disabled={pauseVMMutation.isPending}
               >
                 Pause
-              </Button>
-              <Button 
-                icon={<ReloadOutlined />} 
-                size="small"
+              </button>
+              <button 
                 onClick={() => handleVMOperation('restart', record.id)}
-                loading={restartVMMutation.isPending}
+                disabled={restartVMMutation.isPending}
               >
                 Restart
-              </Button>
-              <Button 
-                icon={<StopOutlined />} 
-                size="small" 
-                danger
+              </button>
+              <button 
                 onClick={() => handleVMOperation('stop', record.id)}
-                loading={stopVMMutation.isPending}
+                disabled={stopVMMutation.isPending}
               >
                 Stop
-              </Button>
+              </button>
             </>
           )}
 
           {record.status === 'paused' && (
-            <Button 
-              icon={<PlayCircleOutlined />} 
-              size="small" 
-              type="primary"
+            <button 
               onClick={() => handleVMOperation('resume', record.id)}
-              loading={resumeVMMutation.isPending}
+              disabled={resumeVMMutation.isPending}
             >
               Resume
-            </Button>
+            </button>
           )}
 
-          <Button 
-            icon={<EyeOutlined />} 
-            size="small"
+          <button 
             onClick={() => {
               setSelectedVM(record.id);
               setStatsModalVisible(true);
             }}
           >
             Stats
-          </Button>
+          </button>
 
-          <Popconfirm
-            title="Are you sure you want to delete this VM?"
-            onConfirm={() => handleVMOperation('delete', record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button 
-              icon={<DeleteOutlined />} 
-              size="small" 
-              danger
-              loading={deleteVMMutation.isPending}
+          <span>
+            <button 
+              onClick={() => handleVMOperation('delete', record.id)}
+              disabled={deleteVMMutation.isPending}
             >
               Delete
-            </Button>
-          </Popconfirm>
-        </Space>
+            </button>
+          </span>
+        </div>
       ),
     },
   ];
 
   useVMEvents((event) => {
     if (event.type === 'created') {
-      message.info(`VM created: ${event.data?.name || event.data?.id}`);
+      alert(`VM created: ${event.data?.name || event.data?.id}`);
     } else if (event.type === 'started') {
-      message.success(`VM started: ${event.data?.name || event.data?.id}`);
+      alert(`VM started: ${event.data?.name || event.data?.id}`);
     } else if (event.type === 'stopped') {
-      message.warning(`VM stopped: ${event.data?.name || event.data?.id}`);
+      alert(`VM stopped: ${event.data?.name || event.data?.id}`);
     } else if (event.type === 'deleted') {
-      message.error(`VM deleted: ${event.data?.name || event.data?.id}`);
+      alert(`VM deleted: ${event.data?.name || event.data?.id}`);
     }
     refetch(); // refresh VM list on any event
   });
 
   return (
-    <PageContainer>
-      <Card>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2>Virtual Machines</h2>
-          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>
-            Refresh
-          </Button>
-        </div>
+    <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <h2>Virtual Machines</h2>
+      <button onClick={() => refetch()}>
+        Refresh
+      </button>
+    </div>
 
-        <Table
-          columns={columns}
-          dataSource={vms}
-          loading={isLoading}
-          rowKey="id"
-          pagination={{ pageSize: 10 }}
-        />
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>CPU</th>
+          <th>Memory</th>
+          <th>Created</th>
+          <th>Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {vms.map((vm) => (
+          <tr key={vm.id}>
+            <td>{vm.name}</td>
+            <td>{vm.status}</td>
+            <td>{vm.cpu.cores} cores</td>
+            <td>{vm.memory.size} MB</td>
+            <td>{new Date(vm.created_at).toLocaleDateString()}</td>
+            <td>{new Date(vm.updated_at).toLocaleDateString()}</td>
+            <td>
+              {vm.status === 'stopped' && (
+                <button 
+                  onClick={() => handleVMOperation('start', vm.id)}
+                  disabled={startVMMutation.isPending}
+                >
+                  Start
+                </button>
+              )}
+              
+              {vm.status === 'running' && (
+                <>
+                  <button 
+                    onClick={() => handleVMOperation('pause', vm.id)}
+                    disabled={pauseVMMutation.isPending}
+                  >
+                    Pause
+                  </button>
+                  <button 
+                    onClick={() => handleVMOperation('restart', vm.id)}
+                    disabled={restartVMMutation.isPending}
+                  >
+                    Restart
+                  </button>
+                  <button 
+                    onClick={() => handleVMOperation('stop', vm.id)}
+                    disabled={stopVMMutation.isPending}
+                  >
+                    Stop
+                  </button>
+                </>
+              )}
 
-        {/* VM Stats Modal */}
-        <Modal
-          title="VM Statistics"
-          open={statsModalVisible}
-          onCancel={() => setStatsModalVisible(false)}
-          footer={null}
-          width={600}
-        >
-          {selectedVM && <VMStatsModal vmId={selectedVM} />}
-        </Modal>
-      </Card>
-    </PageContainer>
+              {vm.status === 'paused' && (
+                <button 
+                  onClick={() => handleVMOperation('resume', vm.id)}
+                  disabled={resumeVMMutation.isPending}
+                >
+                  Resume
+                </button>
+              )}
+
+              <button 
+                onClick={() => {
+                  setSelectedVM(vm.id);
+                  setStatsModalVisible(true);
+                }}
+              >
+                Stats
+              </button>
+
+              <span>
+                <button 
+                  onClick={() => handleVMOperation('delete', vm.id)}
+                  disabled={deleteVMMutation.isPending}
+                >
+                  Delete
+                </button>
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {/* VM Stats Modal */}
+    <div style={{background: '#fff', border: '1px solid #ccc', padding: 16}}>
+      {selectedVM && <VMStatsModal vmId={selectedVM} />}
+    </div>
   );
 };
 
@@ -270,63 +314,20 @@ const VMStatsModal: React.FC<{ vmId: string }> = ({ vmId }) => {
 
   return (
     <div>
-      <Row gutter={16}>
-        <Col span={12}>
-          <Statistic
-            title="CPU Usage"
-            value={stats.cpu_usage}
-            suffix="%"
-            valueStyle={{ color: stats.cpu_usage > 80 ? '#cf1322' : '#3f8600' }}
-          />
-          <Progress percent={stats.cpu_usage} size="small" />
-        </Col>
-        <Col span={12}>
-          <Statistic
-            title="Memory Usage"
-            value={stats.memory_usage}
-            suffix="%"
-            valueStyle={{ color: stats.memory_usage > 80 ? '#cf1322' : '#3f8600' }}
-          />
-          <Progress percent={stats.memory_usage} size="small" />
-        </Col>
-      </Row>
+      <span style={{fontWeight: 600}}>{stats.cpu_usage}%</span>
+      <progress value={stats.cpu_usage} max={100} />
       
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={12}>
-          <Statistic
-            title="Disk Usage"
-            value={stats.disk_usage}
-            suffix="%"
-            valueStyle={{ color: stats.disk_usage > 80 ? '#cf1322' : '#3f8600' }}
-          />
-          <Progress percent={stats.disk_usage} size="small" />
-        </Col>
-        <Col span={12}>
-          <Statistic
-            title="Uptime"
-            value={stats.uptime}
-          />
-        </Col>
-      </Row>
-
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={12}>
-          <Statistic
-            title="Network RX"
-            value={stats.network_rx}
-            suffix="MB/s"
-            precision={2}
-          />
-        </Col>
-        <Col span={12}>
-          <Statistic
-            title="Network TX"
-            value={stats.network_tx}
-            suffix="MB/s"
-            precision={2}
-          />
-        </Col>
-      </Row>
+      <span style={{fontWeight: 600}}>{stats.memory_usage}%</span>
+      <progress value={stats.memory_usage} max={100} />
+      
+      <span style={{fontWeight: 600}}>{stats.disk_usage}%</span>
+      <progress value={stats.disk_usage} max={100} />
+      
+      <span style={{fontWeight: 600}}>{stats.uptime}</span>
+      
+      <span style={{fontWeight: 600}}>{stats.network_rx} MB/s</span>
+      
+      <span style={{fontWeight: 600}}>{stats.network_tx} MB/s</span>
     </div>
   );
 };

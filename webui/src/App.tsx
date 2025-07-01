@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import ProLayout from '@ant-design/pro-layout';
-import { ConfigProvider, theme } from 'antd';
 import {
   DashboardOutlined,
   HddOutlined,
@@ -10,7 +8,6 @@ import {
   UsbOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import 'antd/dist/reset.css';
 import './App.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Dashboard, VMs, System, ISO, GPU, Settings, Login, Installation, AuditLog } from './pages';
@@ -125,13 +122,13 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
+    <>
       <QueryClientProvider client={queryClient}>
         <Router>
           <AppLayout />
         </Router>
       </QueryClientProvider>
-    </ConfigProvider>
+    </>
   );
 };
 

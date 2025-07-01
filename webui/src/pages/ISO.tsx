@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Table, Button, Upload, Modal, message, Popconfirm, Space, Card, Progress } from 'antd';
 import { UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useISOs, useUploadISO, useDeleteISO } from '../hooks/useISOs';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -72,20 +71,9 @@ const ISO: React.FC = () => {
           >
             Download
           </Button>
-          <Popconfirm
-            title="Are you sure you want to delete this ISO?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button 
-              icon={<DeleteOutlined />} 
-              size="small" 
-              danger
-            >
-              Delete
-            </Button>
-          </Popconfirm>
+          <span onClick={() => handleDelete(record.id)} style={{ cursor: 'pointer', color: 'red', marginLeft: 8 }}>
+            Delete
+          </span>
         </Space>
       ),
     },
@@ -107,13 +95,24 @@ const ISO: React.FC = () => {
 
         {error && <div style={{ color: 'red', marginBottom: 16 }}>Failed to load ISOs: {error.message}</div>}
 
-        <Table
-          columns={columns}
-          dataSource={isos}
-          loading={isLoading}
-          rowKey="id"
-          pagination={{ pageSize: 10 }}
-        />
+        <table>
+          <thead>
+            <tr>
+              {columns.map((column) => (
+                <th key={column.key}>{column.title}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {isos.map((iso) => (
+              <tr key={iso.id}>
+                {columns.map((column) => (
+                  <td key={`${iso.id}-${column.key}`}>{column.render ? column.render(iso[column.dataIndex as keyof typeof iso]) : iso[column.dataIndex as keyof typeof iso]}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         <Modal
           title="Upload ISO Image"
@@ -121,21 +120,15 @@ const ISO: React.FC = () => {
           onCancel={() => setUploadModalVisible(false)}
           footer={null}
         >
-          <Upload.Dragger
-            beforeUpload={(file) => {
-              handleUpload(file);
-              return false;
-            }}
+          <input type="file"
             accept=".iso"
-            showUploadList={false}
-          >
-            <p className="ant-upload-drag-icon">
-              <UploadOutlined />
-            </p>
-            <p className="ant-upload-text">Click or drag ISO file to upload</p>
-            <p className="ant-upload-hint">Support for .iso files only</p>
-          </Upload.Dragger>
-          {uploadProgress > 0 && <Progress percent={uploadProgress} />}
+            onChange={(e) => {
+              if (e.target.files) {
+                handleUpload(e.target.files[0]);
+              }
+            }}
+          />
+          {uploadProgress > 0 && <progress value={uploadProgress} max={100} />}
         </Modal>
       </Card>
     </PageContainer>

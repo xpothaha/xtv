@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../api';
 import { useNetworkEvents } from '../hooks/useNetworkEvents';
-import { message, Spin } from 'antd';
 
 interface NetworkStatus {
   interface: string;
@@ -67,11 +66,11 @@ export default function Network() {
 
   useNetworkEvents((event) => {
     if (event.type === 'ip_changed') {
-      message.info(`IP changed: ${event.data?.new_ip}`);
+      console.log(`IP changed: ${event.data?.new_ip}`);
     } else if (event.type === 'migration') {
-      message.success(`Network migration: ${event.data?.status}`);
+      console.log(`Network migration: ${event.data?.status}`);
     } else if (event.type === 'error') {
-      message.error(`Network error: ${event.data?.message}`);
+      console.log(`Network error: ${event.data?.message}`);
     }
     loadNetworkStatus(); // refresh network status on any event
   });
@@ -190,7 +189,7 @@ export default function Network() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {loading && <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50"><Spin size="large" tip="Processing..." /></div>}
+      {loading && <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50"><span>Loading...</span></div>}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Network Management</h1>
         <button 

@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Select, Steps, Alert } from 'antd';
 import { useInstall, useInstallationStatus } from '../hooks/useInstallation';
 import { useNavigate } from 'react-router-dom';
 
-const { Title, Text } = Typography;
-
 const Installation: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [form] = Form.useForm();
   const installMutation = useInstall();
   const { data: installStatus, isLoading } = useInstallationStatus();
   const navigate = useNavigate();
@@ -27,50 +23,50 @@ const Installation: React.FC = () => {
     {
       title: 'Server Configuration',
       content: (
-        <Form form={form} layout="vertical">
-          <Form.Item
+        <form>
+          <form.Item
             name="server_name"
             label="Server Name"
             rules={[{ required: true, message: 'Please enter server name' }]}
           >
-            <Input placeholder="e.g., xtv-server" />
-          </Form.Item>
+            <input placeholder="e.g., xtv-server" />
+          </form.Item>
 
-          <Form.Item
+          <form.Item
             name="ip_config"
             label="IP Configuration"
             rules={[{ required: true, message: 'Please select IP configuration' }]}
           >
-            <Select placeholder="Select IP configuration">
-              <Select.Option value="dhcp">DHCP (Automatic)</Select.Option>
-              <Select.Option value="static">Static IP</Select.Option>
-            </Select>
-          </Form.Item>
+            <select placeholder="Select IP configuration">
+              <option value="dhcp">DHCP (Automatic)</option>
+              <option value="static">Static IP</option>
+            </select>
+          </form.Item>
 
-          <Form.Item
+          <form.Item
             noStyle
             shouldUpdate={(prevValues, currentValues) => prevValues.ip_config !== currentValues.ip_config}
           >
             {({ getFieldValue }) => 
               getFieldValue('ip_config') === 'static' ? (
-                <Form.Item
+                <form.Item
                   name="static_ip"
                   label="Static IP Address"
                   rules={[{ required: true, message: 'Please enter static IP' }]}
                 >
-                  <Input placeholder="e.g., 192.168.1.100" />
-                </Form.Item>
+                  <input placeholder="e.g., 192.168.1.100" />
+                </form.Item>
               ) : null
             }
-          </Form.Item>
-        </Form>
+          </form.Item>
+        </form>
       ),
     },
     {
       title: 'Security',
       content: (
-        <Form form={form} layout="vertical">
-          <Form.Item
+        <form>
+          <form.Item
             name="password"
             label="Root Password"
             rules={[
@@ -78,10 +74,10 @@ const Installation: React.FC = () => {
               { min: 8, message: 'Password must be at least 8 characters' }
             ]}
           >
-            <Input.Password placeholder="Enter root password" />
-          </Form.Item>
+            <input type="password" placeholder="Enter root password" />
+          </form.Item>
 
-          <Form.Item
+          <form.Item
             name="confirm_password"
             label="Confirm Password"
             dependencies={['password']}
@@ -97,9 +93,9 @@ const Installation: React.FC = () => {
               }),
             ]}
           >
-            <Input.Password placeholder="Confirm root password" />
-          </Form.Item>
-        </Form>
+            <input type="password" placeholder="Confirm root password" />
+          </form.Item>
+        </form>
       ),
     },
     {
@@ -149,16 +145,16 @@ const Installation: React.FC = () => {
         justifyContent: 'center',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
       }}>
-        <Card style={{ width: 500, textAlign: 'center' }}>
+        <div style={{ width: 500, textAlign: 'center' }}>
           <Title level={2}>XTV Already Installed</Title>
           <Text type="secondary">
             XTV is already installed and running on this server.
           </Text>
           <br />
-          <Button type="primary" onClick={() => navigate('/login')}>
+          <button type="primary" onClick={() => navigate('/login')}>
             Go to Login
-          </Button>
-        </Card>
+          </button>
+        </div>
       </div>
     );
   }
@@ -171,47 +167,53 @@ const Installation: React.FC = () => {
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
-      <Card style={{ width: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+      <div style={{ width: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Title level={2} style={{ color: '#1890ff' }}>XTV Installation</Title>
         </div>
 
-        <Steps current={currentStep} style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: 32 }}>
           {steps.map(item => (
-            <Steps.Step key={item.title} title={item.title} />
+            <div key={item.title} style={{ display: 'inline-block', marginRight: 8 }}>
+              <button onClick={() => setCurrentStep(steps.indexOf(item))} style={{ background: currentStep === steps.indexOf(item) ? '#1890ff' : 'transparent', color: currentStep === steps.indexOf(item) ? '#fff' : 'inherit', border: 'none', padding: '8px 16px', cursor: 'pointer' }}>
+                {item.title}
+              </button>
+            </div>
           ))}
-        </Steps>
+        </div>
 
         <div style={{ minHeight: 200 }}>
           {steps[currentStep].content}
         </div>
 
         {installMutation.isError && (
-          <Alert message="Install failed" description={installMutation.error?.message} type="error" showIcon style={{ marginBottom: 16 }} />
+          <div style={{ marginBottom: 16 }}>
+            <Alert message="Install failed" description={installMutation.error?.message} type="error" showIcon />
+          </div>
         )}
 
         <div style={{ marginTop: 24, textAlign: 'right' }}>
           {currentStep > 0 && (
-            <Button style={{ marginRight: 8 }} onClick={prev}>
+            <button style={{ marginRight: 8 }} onClick={prev}>
               Previous
-            </Button>
+            </button>
           )}
           {currentStep < steps.length - 1 && (
-            <Button type="primary" onClick={next}>
+            <button type="primary" onClick={next}>
               Next
-            </Button>
+            </button>
           )}
           {currentStep === steps.length - 1 && (
-            <Button 
+            <button 
               type="primary" 
               onClick={handleInstall}
               loading={installMutation.isPending}
             >
               Install
-            </Button>
+            </button>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

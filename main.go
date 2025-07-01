@@ -85,23 +85,19 @@ func printSystemInfo() {
 }
 
 func isStrongPassword(pw string) bool {
-	if len(pw) < 8 {
+	if len(pw) < 6 {
 		return false
 	}
-	hasUpper, hasLower, hasDigit, hasSpecial := false, false, false, false
+	hasLetter, hasDigit := false, false
 	for _, c := range pw {
 		switch {
-		case 'A' <= c && c <= 'Z':
-			hasUpper = true
-		case 'a' <= c && c <= 'z':
-			hasLower = true
+		case ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'):
+			hasLetter = true
 		case '0' <= c && c <= '9':
 			hasDigit = true
-		case c >= 33 && c <= 47 || c >= 58 && c <= 64 || c >= 91 && c <= 96 || c >= 123 && c <= 126:
-			hasSpecial = true
 		}
 	}
-	return hasUpper && hasLower && hasDigit && hasSpecial
+	return hasLetter && hasDigit
 }
 
 func logInstall(msg string) {
@@ -133,6 +129,7 @@ func main() {
 		fmt.Println("\nSystem Requirements Check:")
 		for _, line := range reqs {
 			fmt.Println("  ", line)
+			time.Sleep(400 * time.Millisecond)
 		}
 		if ok {
 			fmt.Println("\n✅ All requirements met!")
@@ -148,6 +145,7 @@ func main() {
 		fmt.Println("\nSystem Requirements Check:")
 		for _, line := range reqs {
 			fmt.Println("  ", line)
+			time.Sleep(400 * time.Millisecond)
 		}
 		if !ok {
 			fmt.Println("\n❌ System requirements not met. Please enable all required features before installing XTV.")
@@ -280,30 +278,36 @@ func runInstallation(cfg *config.Config, configPath string) error {
 	}
 
 	// Password (ซ่อน input)
-	fmt.Print("Password for root user: ")
-	pwBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
-	fmt.Println()
-	if err != nil {
-		return fmt.Errorf("failed to read password: %v", err)
-	}
-	password := strings.TrimSpace(string(pwBytes))
-	if password == "" {
-		return fmt.Errorf("password cannot be empty")
-	}
-	if !isStrongPassword(password) {
-		return fmt.Errorf("password must be at least 8 chars and include upper, lower, digit, special char")
-	}
-
-	// Confirm password
-	fmt.Print("Confirm password: ")
-	pw2Bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
-	fmt.Println()
-	if err != nil {
-		return fmt.Errorf("failed to read confirm password: %v", err)
-	}
-	confirmPassword := strings.TrimSpace(string(pw2Bytes))
-	if password != confirmPassword {
-		return fmt.Errorf("passwords do not match")
+	for {
+		fmt.Print("Password for root user: ")
+		pwBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+		fmt.Println()
+		if err != nil {
+			return fmt.Errorf("failed to read password: %v", err)
+		}
+		password := strings.TrimSpace(string(pwBytes))
+		if password == "" {
+			fmt.Println("Password cannot be empty. Please try again.")
+			continue
+		}
+		if !isStrongPassword(password) {
+			fmt.Println("Password must be at least 6 characters and contain both letters and digits. Please try again.")
+			continue
+		}
+		// Confirm password
+		fmt.Print("Confirm password: ")
+		pw2Bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+		fmt.Println()
+		if err != nil {
+			return fmt.Errorf("failed to read confirm password: %v", err)
+		}
+		confirmPassword := strings.TrimSpace(string(pw2Bytes))
+		if password != confirmPassword {
+			fmt.Println("Passwords do not match. Please try again.")
+			continue
+		}
+		cfg.Auth.Password = password
+		break
 	}
 
 	logInstall("Start installation")
@@ -326,7 +330,6 @@ func runInstallation(cfg *config.Config, configPath string) error {
 	cfg.Install.Installed = true
 
 	cfg.Auth.Username = "root"
-	cfg.Auth.Password = password
 
 	// Save configuration
 	if err := cfg.Save(configPath); err != nil {
@@ -342,7 +345,7 @@ func runInstallation(cfg *config.Config, configPath string) error {
 	fmt.Printf("Web UI URL: http://%s:8888\n", serverName)
 	fmt.Printf("API URL: http://%s:8080\n", serverName)
 	fmt.Printf("Username: root\n")
-	fmt.Printf("Password: %s\n", strings.Repeat("*", len(password)))
+	fmt.Printf("Password: %s\n", strings.Repeat("*", len(cfg.Auth.Password)))
 	fmt.Println("\nYou can now start the server with: ./xtv --config %s", configPath)
 
 	return nil

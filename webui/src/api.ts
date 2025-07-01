@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { message } from 'antd';
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
@@ -14,7 +13,7 @@ api.interceptors.response.use(
       // Token invalid or expired
       localStorage.removeItem('xtv_token');
       delete api.defaults.headers.common['Authorization'];
-      message.error('Session expired. Please login again.');
+      alert('Session expired. Please login again.');
       window.location.href = '/login';
     }
     return Promise.reject(error);

@@ -188,7 +188,7 @@ const Installation: React.FC = () => {
 
         {installMutation.isError && (
           <div style={{ marginBottom: 16 }}>
-            <Alert message="Install failed" description={installMutation.error?.message} type="error" showIcon />
+            <div style={{ color: 'red' }}>{installMutation.error?.message}</div>
           </div>
         )}
 

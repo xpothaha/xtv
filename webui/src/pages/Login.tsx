@@ -28,8 +28,8 @@ const Login: React.FC = () => {
       <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <strong style={{ color: '#1890ff', fontSize: '24px' }}>XTV</strong>
-          <Title level={2} style={{ color: '#1890ff' }}>XTV</Title>
-          <Text type="secondary">Virtualization Platform</Text>
+          <h2 style={{ color: '#1890ff' }}>XTV</h2>
+          <span style={{ color: '#1890ff' }}>Virtualization Platform</span>
         </div>
 
         <form
@@ -74,7 +74,7 @@ const Login: React.FC = () => {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <Text type="secondary">Default: root / your-installation-password</Text>
+          <span style={{ color: '#1890ff' }}>Default: root / your-installation-password</span>
         </div>
       </div>
     </div>

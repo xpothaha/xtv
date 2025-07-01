@@ -200,103 +200,105 @@ const VMs: React.FC = () => {
   });
 
   return (
-    <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <h2>Virtual Machines</h2>
-      <button onClick={() => refetch()}>
-        Refresh
-      </button>
-    </div>
+    <>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>Virtual Machines</h2>
+        <button onClick={() => refetch()}>
+          Refresh
+        </button>
+      </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Status</th>
-          <th>CPU</th>
-          <th>Memory</th>
-          <th>Created</th>
-          <th>Updated</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {vms.map((vm) => (
-          <tr key={vm.id}>
-            <td>{vm.name}</td>
-            <td>{vm.status}</td>
-            <td>{vm.cpu.cores} cores</td>
-            <td>{vm.memory.size} MB</td>
-            <td>{new Date(vm.created_at).toLocaleDateString()}</td>
-            <td>{new Date(vm.updated_at).toLocaleDateString()}</td>
-            <td>
-              {vm.status === 'stopped' && (
-                <button 
-                  onClick={() => handleVMOperation('start', vm.id)}
-                  disabled={startVMMutation.isPending}
-                >
-                  Start
-                </button>
-              )}
-              
-              {vm.status === 'running' && (
-                <>
-                  <button 
-                    onClick={() => handleVMOperation('pause', vm.id)}
-                    disabled={pauseVMMutation.isPending}
-                  >
-                    Pause
-                  </button>
-                  <button 
-                    onClick={() => handleVMOperation('restart', vm.id)}
-                    disabled={restartVMMutation.isPending}
-                  >
-                    Restart
-                  </button>
-                  <button 
-                    onClick={() => handleVMOperation('stop', vm.id)}
-                    disabled={stopVMMutation.isPending}
-                  >
-                    Stop
-                  </button>
-                </>
-              )}
-
-              {vm.status === 'paused' && (
-                <button 
-                  onClick={() => handleVMOperation('resume', vm.id)}
-                  disabled={resumeVMMutation.isPending}
-                >
-                  Resume
-                </button>
-              )}
-
-              <button 
-                onClick={() => {
-                  setSelectedVM(vm.id);
-                  setStatsModalVisible(true);
-                }}
-              >
-                Stats
-              </button>
-
-              <span>
-                <button 
-                  onClick={() => handleVMOperation('delete', vm.id)}
-                  disabled={deleteVMMutation.isPending}
-                >
-                  Delete
-                </button>
-              </span>
-            </td>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>CPU</th>
+            <th>Memory</th>
+            <th>Created</th>
+            <th>Updated</th>
+            <th>Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {vms.map((vm) => (
+            <tr key={vm.id}>
+              <td>{vm.name}</td>
+              <td>{vm.status}</td>
+              <td>{vm.cpu.cores} cores</td>
+              <td>{vm.memory.size} MB</td>
+              <td>{new Date(vm.created_at).toLocaleDateString()}</td>
+              <td>{new Date(vm.updated_at).toLocaleDateString()}</td>
+              <td>
+                {vm.status === 'stopped' && (
+                  <button 
+                    onClick={() => handleVMOperation('start', vm.id)}
+                    disabled={startVMMutation.isPending}
+                  >
+                    Start
+                  </button>
+                )}
+                
+                {vm.status === 'running' && (
+                  <>
+                    <button 
+                      onClick={() => handleVMOperation('pause', vm.id)}
+                      disabled={pauseVMMutation.isPending}
+                    >
+                      Pause
+                    </button>
+                    <button 
+                      onClick={() => handleVMOperation('restart', vm.id)}
+                      disabled={restartVMMutation.isPending}
+                    >
+                      Restart
+                    </button>
+                    <button 
+                      onClick={() => handleVMOperation('stop', vm.id)}
+                      disabled={stopVMMutation.isPending}
+                    >
+                      Stop
+                    </button>
+                  </>
+                )}
 
-    {/* VM Stats Modal */}
-    <div style={{background: '#fff', border: '1px solid #ccc', padding: 16}}>
-      {selectedVM && <VMStatsModal vmId={selectedVM} />}
-    </div>
+                {vm.status === 'paused' && (
+                  <button 
+                    onClick={() => handleVMOperation('resume', vm.id)}
+                    disabled={resumeVMMutation.isPending}
+                  >
+                    Resume
+                  </button>
+                )}
+
+                <button 
+                  onClick={() => {
+                    setSelectedVM(vm.id);
+                    setStatsModalVisible(true);
+                  }}
+                >
+                  Stats
+                </button>
+
+                <span>
+                  <button 
+                    onClick={() => handleVMOperation('delete', vm.id)}
+                    disabled={deleteVMMutation.isPending}
+                  >
+                    Delete
+                  </button>
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* VM Stats Modal */}
+      <div style={{background: '#fff', border: '1px solid #ccc', padding: 16}}>
+        {selectedVM && <VMStatsModal vmId={selectedVM} />}
+      </div>
+    </>
   );
 };
 

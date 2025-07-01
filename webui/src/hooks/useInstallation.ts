@@ -28,6 +28,9 @@ export function useInstallationStatus() {
       const { data } = await api.get<InstallationStatus>('/api/v1/install/status');
       return data;
     },
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+    retry: false,
   });
 }
 

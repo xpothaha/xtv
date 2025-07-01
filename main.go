@@ -22,6 +22,7 @@ import (
 	"xtv/internal/monitor"
 	"xtv/internal/vm"
 
+	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/mem"
 	"golang.org/x/term"
 )
@@ -196,10 +197,25 @@ func main() {
 	fmt.Printf("🔧 Version: %s\n", Version)
 	fmt.Printf("⏰ Build Time: %s\n", BuildTime)
 
-	// Start server in goroutine for graceful shutdown
+	// Start API server in goroutine for graceful shutdown
 	go func() {
 		if err := server.Start(); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	// Start static webui server (port 8888)
+	go func() {
+		r := gin.Default()
+		r.Static("/static", "./webui/build/static")
+		r.StaticFile("/favicon.ico", "./webui/build/favicon.ico")
+		r.StaticFile("/manifest.json", "./webui/build/manifest.json")
+		r.NoRoute(func(c *gin.Context) {
+			c.File("./webui/build/index.html")
+		})
+		fmt.Println("🌐 Web UI: http://0.0.0.0:8888")
+		if err := r.Run(":8888"); err != nil {
+			log.Fatalf("Failed to start Web UI server: %v", err)
 		}
 	}()
 

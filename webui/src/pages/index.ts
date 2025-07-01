@@ -1,0 +1,9 @@
+export { default as Dashboard } from './Dashboard';
+export { default as VMs } from './VMs';
+export { default as System } from './System';
+export { default as ISO } from './ISO';
+export { default as GPU } from './GPU';
+export { default as Settings } from './Settings';
+export { default as Login } from './Login';
+export { default as Installation } from './Installation';
+export { default as AuditLog } from './AuditLog'; 

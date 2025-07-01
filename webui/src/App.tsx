@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import {
-  DashboardOutlined,
-  HddOutlined,
-  ClusterOutlined,
-  DatabaseOutlined,
-  UsbOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
 import './App.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Dashboard, VMs, System, ISO, GPU, Settings, Login, Installation, AuditLog } from './pages';
@@ -19,13 +11,13 @@ const queryClient = new QueryClient();
 type MenuItemType = { path: string; name: string; icon: React.ReactNode };
 
 const menuData: MenuItemType[] = [
-  { path: '/dashboard', name: 'Dashboard', icon: <DashboardOutlined /> },
-  { path: '/vms', name: 'VMs', icon: <HddOutlined /> },
-  { path: '/system', name: 'System', icon: <ClusterOutlined /> },
-  { path: '/iso', name: 'ISO', icon: <DatabaseOutlined /> },
-  { path: '/gpu', name: 'GPU', icon: <UsbOutlined /> },
-  { path: '/settings', name: 'Settings', icon: <SettingOutlined /> },
-  { path: '/audit', name: 'Audit Log', icon: <SettingOutlined /> },
+  { path: '/dashboard', name: 'Dashboard', icon: '📊' },
+  { path: '/vms', name: 'VMs', icon: '💾' },
+  { path: '/system', name: 'System', icon: '🖧' },
+  { path: '/iso', name: 'ISO', icon: '🗄️' },
+  { path: '/gpu', name: 'GPU', icon: '💻' },
+  { path: '/settings', name: 'Settings', icon: '⚙️' },
+  { path: '/audit', name: 'Audit Log', icon: '⚙️' },
 ];
 
 // Protected Route Component

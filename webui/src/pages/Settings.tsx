@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
-import { SaveOutlined, ReloadOutlined, UserOutlined, LockOutlined, KeyOutlined } from '@ant-design/icons';
-import { PageContainer } from '@ant-design/pro-layout';
 import { useChangePassword, useResetPassword, useQuota, useLogout } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
-const { TabPane } = Tabs;
-
 const Settings: React.FC = () => {
-  const [form] = Form.useForm();
-  const [passwordForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const navigate = useNavigate();
@@ -23,67 +17,64 @@ const Settings: React.FC = () => {
     try {
       // TODO: Implement settings save API call
       console.log('Saving settings:', values);
-      message.success('Settings saved successfully');
+      alert('Settings saved successfully');
     } catch (error) {
-      message.error('Failed to save settings');
+      alert('Failed to save settings');
     } finally {
       setLoading(false);
     }
   };
 
   const handleReset = () => {
-    form.resetFields();
-    message.info('Settings reset to defaults');
+    alert('Settings reset to defaults');
   };
 
   const handleChangePassword = async (values: any) => {
     try {
       await changePasswordMutation.mutateAsync(values);
-      message.success('Password changed successfully');
+      alert('Password changed successfully');
       setPasswordModalVisible(false);
-      passwordForm.resetFields();
     } catch (error) {
-      message.error('Failed to change password');
+      alert('Failed to change password');
     }
   };
 
   const handleResetPassword = async (values: any) => {
     try {
       await resetPasswordMutation.mutateAsync(values);
-      message.success('Password reset successfully');
+      alert('Password reset successfully');
       setPasswordModalVisible(false);
-      passwordForm.resetFields();
     } catch (error) {
-      message.error('Failed to reset password');
+      alert('Failed to reset password');
     }
   };
 
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
-      message.success('Logged out successfully');
+      alert('Logged out successfully');
       navigate('/login');
     } catch (error) {
-      message.error('Failed to logout');
+      alert('Failed to logout');
     }
   };
 
   return (
-    <PageContainer>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>System Settings</h2>
-        <Space>
-          <Button icon={<ReloadOutlined />} onClick={handleReset}>
-            Reset
-          </Button>
-          <Button type="primary" icon={<SaveOutlined />} loading={loading} onClick={() => form.submit()}>
-            Save Settings
-          </Button>
-        </Space>
+    <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <h2>System Settings</h2>
+      <div>
+        <button onClick={handleReset}>
+          Reset
+        </button>
+        <button type="primary" loading={loading} onClick={() => handleSave({})}>
+          Save Settings
+        </button>
       </div>
+    </div>
 
+    <section>
       <Tabs defaultActiveKey="general">
-        <TabPane tab="General" key="general">
+        <div tab="General" key="general">
           <form
             onFinish={handleSave}
             initialValues={{
@@ -98,266 +89,181 @@ const Settings: React.FC = () => {
               auto_start_vms: false,
             }}
           >
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ width: '48%' }}>
                 <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                   <h3>API Configuration</h3>
-                  <Form.Item name="api_port" label="API Port">
-                    <input type="number" min={1024} max={65535} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item name="api_host" label="API Host">
-                    <input placeholder="0.0.0.0" />
-                  </Form.Item>
-                  <Form.Item name="enable_cors" label="Enable CORS" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
+                  <label>API Port</label>
+                  <input type="number" min={1024} max={65535} style={{ width: '100%' }} />
+                  <label>API Host</label>
+                  <input placeholder="0.0.0.0" />
+                  <label>Enable CORS</label>
+                  <input type="checkbox" />
                 </div>
-              </Col>
-              <Col xs={24} md={12}>
+              </div>
+              <div style={{ width: '48%' }}>
                 <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                   <h3>VM Limits</h3>
-                  <Form.Item name="max_vms" label="Maximum VMs">
-                    <input type="number" min={1} max={100} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item name="default_memory" label="Default Memory (MB)">
-                    <input type="number" min={512} max={32768} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item name="default_cpus" label="Default CPUs">
-                    <input type="number" min={1} max={32} style={{ width: '100%' }} />
-                  </Form.Item>
+                  <label>Maximum VMs</label>
+                  <input type="number" min={1} max={100} style={{ width: '100%' }} />
+                  <label>Default Memory (MB)</label>
+                  <input type="number" min={512} max={32768} style={{ width: '100%' }} />
+                  <label>Default CPUs</label>
+                  <input type="number" min={1} max={32} style={{ width: '100%' }} />
                 </div>
-              </Col>
-            </Row>
+              </div>
+            </div>
 
-            <Divider />
+            <hr />
 
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ width: '48%' }}>
                 <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                   <h3>Storage</h3>
-                  <Form.Item name="storage_path" label="Storage Path">
-                    <input />
-                  </Form.Item>
-                  <Form.Item name="backup_enabled" label="Enable Backups" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
-                  <Form.Item name="backup_path" label="Backup Path">
-                    <input />
-                  </Form.Item>
+                  <label>Storage Path</label>
+                  <input />
+                  <label>Enable Backups</label>
+                  <input type="checkbox" />
+                  <label>Backup Path</label>
+                  <input />
                 </div>
-              </Col>
-              <Col xs={24} md={12}>
+              </div>
+              <div style={{ width: '48%' }}>
                 <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                   <h3>Monitoring</h3>
-                  <Form.Item name="enable_monitoring" label="Enable System Monitoring" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
-                  <Form.Item name="monitoring_interval" label="Monitoring Interval (seconds)">
-                    <input type="number" min={5} max={300} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item name="enable_audit_logs" label="Enable Audit Logs" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
+                  <label>Enable System Monitoring</label>
+                  <input type="checkbox" />
+                  <label>Monitoring Interval (seconds)</label>
+                  <input type="number" min={5} max={300} style={{ width: '100%' }} />
+                  <label>Enable Audit Logs</label>
+                  <input type="checkbox" />
                 </div>
-              </Col>
-            </Row>
+              </div>
+            </div>
 
-            <Divider />
+            <hr />
 
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ width: '48%' }}>
                 <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                   <h3>VM Behavior</h3>
-                  <Form.Item name="auto_start_vms" label="Auto-start VMs on Boot" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
-                  <Form.Item name="vm_timeout" label="VM Operation Timeout (seconds)">
-                    <input type="number" min={30} max={300} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item name="enable_vnc" label="Enable VNC Console" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
+                  <label>Auto-start VMs on Boot</label>
+                  <input type="checkbox" />
+                  <label>VM Operation Timeout (seconds)</label>
+                  <input type="number" min={30} max={300} style={{ width: '100%' }} />
+                  <label>Enable VNC Console</label>
+                  <input type="checkbox" />
                 </div>
-              </Col>
-              <Col xs={24} md={12}>
+              </div>
+              <div style={{ width: '48%' }}>
                 <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                   <h3>Security</h3>
-                  <Form.Item name="enable_ssl" label="Enable SSL/TLS" valuePropName="checked">
-                    <input type="checkbox" />
-                  </Form.Item>
-                  <Form.Item name="ssl_cert_path" label="SSL Certificate Path">
-                    <input />
-                  </Form.Item>
-                  <Form.Item name="ssl_key_path" label="SSL Private Key Path">
-                    <input />
-                  </Form.Item>
+                  <label>Enable SSL/TLS</label>
+                  <input type="checkbox" />
+                  <label>SSL Certificate Path</label>
+                  <input />
+                  <label>SSL Private Key Path</label>
+                  <input />
                 </div>
-              </Col>
-            </Row>
+              </div>
+            </div>
           </form>
-        </TabPane>
+        </div>
 
-        <TabPane tab="Authentication" key="auth">
-          <Row gutter={24}>
-            <Col xs={24} md={12}>
+        <div tab="Authentication" key="auth">
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ width: '48%' }}>
               <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                 <h3>Password Management</h3>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Button 
-                    icon={<LockOutlined />} 
-                    onClick={() => setPasswordModalVisible(true)}
-                    block
-                  >
-                    Change Password
-                  </Button>
-                  <Button 
-                    icon={<KeyOutlined />} 
-                    onClick={() => setPasswordModalVisible(true)}
-                    block
-                  >
-                    Reset Password
-                  </Button>
-                  <Button 
-                    icon={<UserOutlined />} 
-                    onClick={handleLogout}
-                    danger
-                    block
-                  >
-                    Logout
-                  </Button>
-                </Space>
+                <button 
+                  onClick={() => setPasswordModalVisible(true)}
+                  style={{ width: '100%', padding: '8px 16px' }}
+                >
+                  Change Password
+                </button>
+                <button 
+                  onClick={() => setPasswordModalVisible(true)}
+                  style={{ width: '100%', padding: '8px 16px' }}
+                >
+                  Reset Password
+                </button>
+                <button 
+                  onClick={handleLogout}
+                  style={{ width: '100%', padding: '8px 16px', backgroundColor: 'red', color: 'white' }}
+                >
+                  Logout
+                </button>
               </div>
-            </Col>
-            <Col xs={24} md={12}>
+            </div>
+            <div style={{ width: '48%' }}>
               <div style={{ border: '1px solid #eee', padding: 16, borderRadius: 8 }}>
                 <h3>User Quota</h3>
                 {quotaInfo && (
                   <div>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.vms}</span>
-                        <progress value={quotaInfo.usage.vms} max={quotaInfo.quota.max_vms} />
-                      </Col>
-                      <Col span={12}>
-                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.cpu}</span>
-                        <progress value={quotaInfo.usage.cpu} max={quotaInfo.quota.max_cpu} />
-                      </Col>
-                    </Row>
-                    <Row gutter={16} style={{ marginTop: 16 }}>
-                      <Col span={12}>
-                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.memory}</span>
-                        <progress value={quotaInfo.usage.memory} max={quotaInfo.quota.max_memory} />
-                      </Col>
-                      <Col span={12}>
-                        <span style={{ fontWeight: 600 }}>{quotaInfo.usage.storage}</span>
-                        <progress value={quotaInfo.usage.storage} max={quotaInfo.quota.max_storage} />
-                      </Col>
-                    </Row>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: 600 }}>{quotaInfo.usage.vms}</span>
+                      <progress value={quotaInfo.usage.vms} max={quotaInfo.quota.max_vms} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+                      <span style={{ fontWeight: 600 }}>{quotaInfo.usage.cpu}</span>
+                      <progress value={quotaInfo.usage.cpu} max={quotaInfo.quota.max_cpu} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+                      <span style={{ fontWeight: 600 }}>{quotaInfo.usage.memory}</span>
+                      <progress value={quotaInfo.usage.memory} max={quotaInfo.quota.max_memory} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+                      <span style={{ fontWeight: 600 }}>{quotaInfo.usage.storage}</span>
+                      <progress value={quotaInfo.usage.storage} max={quotaInfo.quota.max_storage} />
+                    </div>
                   </div>
                 )}
               </div>
-            </Col>
-          </Row>
-        </TabPane>
+            </div>
+          </div>
+        </div>
       </Tabs>
+    </section>
 
-      {/* Password Change Modal */}
-      <div style={{ background: '#fff', border: '1px solid #ccc', padding: 16 }}>
-        <Tabs defaultActiveKey="change">
-          <TabPane tab="Change Password" key="change">
-            <form onFinish={handleChangePassword} layout="vertical">
-              <Form.Item
-                name="current_password"
-                label="Current Password"
-                rules={[{ required: true, message: 'Please enter current password' }]}
-              >
-                <input type="password" />
-              </Form.Item>
-              <Form.Item
-                name="new_password"
-                label="New Password"
-                rules={[
-                  { required: true, message: 'Please enter new password' },
-                  { min: 8, message: 'Password must be at least 8 characters' }
-                ]}
-              >
-                <input type="password" />
-              </Form.Item>
-              <Form.Item
-                name="confirm_password"
-                label="Confirm Password"
-                dependencies={['new_password']}
-                rules={[
-                  { required: true, message: 'Please confirm password' },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('new_password') === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error('Passwords do not match'));
-                    },
-                  }),
-                ]}
-              >
-                <input type="password" />
-              </Form.Item>
-              <Form.Item>
-                <Space>
-                  <Button type="primary" htmlType="submit" loading={changePasswordMutation.isPending}>
-                    Change Password
-                  </Button>
-                  <Button onClick={() => setPasswordModalVisible(false)}>
-                    Cancel
-                  </Button>
-                </Space>
-              </Form.Item>
-            </form>
-          </TabPane>
-          <TabPane tab="Reset Password" key="reset">
-            <form onFinish={handleResetPassword} layout="vertical">
-              <Form.Item
-                name="new_password"
-                label="New Password"
-                rules={[
-                  { required: true, message: 'Please enter new password' },
-                  { min: 8, message: 'Password must be at least 8 characters' }
-                ]}
-              >
-                <input type="password" />
-              </Form.Item>
-              <Form.Item
-                name="confirm_password"
-                label="Confirm Password"
-                dependencies={['new_password']}
-                rules={[
-                  { required: true, message: 'Please confirm password' },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('new_password') === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error('Passwords do not match'));
-                    },
-                  }),
-                ]}
-              >
-                <input type="password" />
-              </Form.Item>
-              <Form.Item>
-                <Space>
-                  <Button type="primary" htmlType="submit" loading={resetPasswordMutation.isPending}>
-                    Reset Password
-                  </Button>
-                  <Button onClick={() => setPasswordModalVisible(false)}>
-                    Cancel
-                  </Button>
-                </Space>
-              </Form.Item>
-            </form>
-          </TabPane>
-        </Tabs>
-      </div>
-    </PageContainer>
+    {/* Password Change Modal */}
+    <div style={{ background: '#fff', border: '1px solid #ccc', padding: 16 }}>
+      <section>
+        <div tab="Change Password" key="change">
+          <form onFinish={handleChangePassword} layout="vertical">
+            <label>Current Password</label>
+            <input type="password" />
+            <label>New Password</label>
+            <input type="password" />
+            <label>Confirm Password</label>
+            <input type="password" />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button type="primary" htmlType="submit" loading={changePasswordMutation.isPending}>
+                Change Password
+              </button>
+              <button onClick={() => setPasswordModalVisible(false)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+        <div tab="Reset Password" key="reset">
+          <form onFinish={handleResetPassword} layout="vertical">
+            <label>New Password</label>
+            <input type="password" />
+            <label>Confirm Password</label>
+            <input type="password" />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button type="primary" htmlType="submit" loading={resetPasswordMutation.isPending}>
+                Reset Password
+              </button>
+              <button onClick={() => setPasswordModalVisible(false)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
   );
 };
 

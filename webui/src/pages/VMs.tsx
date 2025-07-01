@@ -1,12 +1,4 @@
 import React, { useState } from 'react';
-import { 
-  PlayCircleOutlined, 
-  PauseCircleOutlined, 
-  StopOutlined, 
-  ReloadOutlined,
-  DeleteOutlined,
-  EyeOutlined
-} from '@ant-design/icons';
 import { useVMs, useStartVM, useStopVM, useRestartVM, usePauseVM, useResumeVM, useDeleteVM, useVMStats } from '../hooks/useVMs';
 import { useVMEvents } from '../hooks/useVMEvents';
 

@@ -235,39 +235,28 @@ const GPU: React.FC = () => {
 
       <div style={{ background: '#fff', border: '1px solid #ccc', padding: 16, marginTop: 24 }}>
         <h3>Create VGPU Profile</h3>
-        <Form form={form} onFinish={handleCreateProfile} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Profile Name"
-            rules={[{ required: true, message: 'Please enter profile name' }]}
-          >
-            <input />
-          </Form.Item>
-          <Form.Item
-            name="memory"
-            label="Memory (MB)"
-            rules={[{ required: true, message: 'Please enter memory size' }]}
-          >
-            <input type="number" min={1} style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item
-            name="max_instances"
-            label="Max Instances"
-            rules={[{ required: true, message: 'Please enter max instances' }]}
-          >
-            <input type="number" min={1} style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <button type="primary" htmlType="submit">
-                Create
-              </button>
-              <button onClick={() => setProfileModalVisible(false)}>
-                Cancel
-              </button>
-            </div>
-          </Form.Item>
-        </Form>
+        <form onFinish={handleCreateProfile}>
+          <div>
+            <label htmlFor="name">Profile Name</label>
+            <input id="name" name="name" required />
+          </div>
+          <div>
+            <label htmlFor="memory">Memory (MB)</label>
+            <input id="memory" name="memory" type="number" min={1} style={{ width: '100%' }} required />
+          </div>
+          <div>
+            <label htmlFor="max_instances">Max Instances</label>
+            <input id="max_instances" name="max_instances" type="number" min={1} style={{ width: '100%' }} required />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <button type="submit">
+              Create
+            </button>
+            <button onClick={() => setProfileModalVisible(false)}>
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </PageContainer>
   );

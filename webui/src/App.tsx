@@ -41,29 +41,7 @@ const AppLayout: React.FC = () => {
   }
 
   return (
-    <ProLayout
-      title="XTV"
-      logo={null}
-      fixSiderbar
-      layout="mix"
-      navTheme="light"
-      menuDataRender={() => menuData}
-      location={{ pathname }}
-      onMenuHeaderClick={() => navigate('/dashboard')}
-      menuItemRender={(item, dom) => (
-        <span
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            setPathname(item.path as string);
-            navigate(item.path as string);
-          }}
-        >
-          {dom}
-        </span>
-      )}
-      headerContentRender={() => <span style={{ fontWeight: 600, fontSize: 18 }}>XTV Virtualization Platform</span>}
-      contentStyle={{ minHeight: 'calc(100vh - 64px)', background: '#f5f6fa' }}
-    >
+    <div>
       <Routes>
         <Route path="/dashboard" element={
           <ProtectedRoute>
@@ -103,7 +81,7 @@ const AppLayout: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
-    </ProLayout>
+    </div>
   );
 };
 

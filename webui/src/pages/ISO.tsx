@@ -63,74 +63,65 @@ const ISO: React.FC = () => {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: any) => (
-        <Space>
-          <Button 
-            icon={<DownloadOutlined />} 
-            size="small"
+        <div>
+          <button 
             onClick={() => window.open(`/api/isos/${record.id}/download`)}
           >
             Download
-          </Button>
+          </button>
           <span onClick={() => handleDelete(record.id)} style={{ cursor: 'pointer', color: 'red', marginLeft: 8 }}>
             Delete
           </span>
-        </Space>
+        </div>
       ),
     },
   ];
 
   return (
     <PageContainer>
-      <Card>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2>ISO Images</h2>
-          <Button 
-            type="primary" 
-            icon={<UploadOutlined />}
-            onClick={() => setUploadModalVisible(true)}
-          >
-            Upload ISO
-          </Button>
-        </div>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>ISO Images</h2>
+        <button 
+          onClick={() => setUploadModalVisible(true)}
+        >
+          Upload ISO
+        </button>
+      </div>
 
-        {error && <div style={{ color: 'red', marginBottom: 16 }}>Failed to load ISOs: {error.message}</div>}
+      {error && <div style={{ color: 'red', marginBottom: 16 }}>Failed to load ISOs: {error.message}</div>}
 
-        <table>
-          <thead>
-            <tr>
+      <table>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column.key}>{column.title}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {isos.map((iso) => (
+            <tr key={iso.id}>
               {columns.map((column) => (
-                <th key={column.key}>{column.title}</th>
+                <td key={`${iso.id}-${column.key}`}>{column.render ? column.render(iso[column.dataIndex as keyof typeof iso]) : iso[column.dataIndex as keyof typeof iso]}</td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {isos.map((iso) => (
-              <tr key={iso.id}>
-                {columns.map((column) => (
-                  <td key={`${iso.id}-${column.key}`}>{column.render ? column.render(iso[column.dataIndex as keyof typeof iso]) : iso[column.dataIndex as keyof typeof iso]}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </tbody>
+      </table>
 
-        <Modal
-          title="Upload ISO Image"
-          open={uploadModalVisible}
-          onCancel={() => setUploadModalVisible(false)}
-          footer={null}
-        >
-          <input type="file"
-            accept=".iso"
-            onChange={(e) => {
-              if (e.target.files) {
-                handleUpload(e.target.files[0]);
-              }
-            }}
-          />
-          {uploadProgress > 0 && <progress value={uploadProgress} max={100} />}
-        </Modal>
-      </Card>
+      <div
+        style={{ display: uploadModalVisible ? 'block' : 'none' }}
+      >
+        <input type="file"
+          accept=".iso"
+          onChange={(e) => {
+            if (e.target.files) {
+              handleUpload(e.target.files[0]);
+            }
+          }}
+        />
+        {uploadProgress > 0 && <progress value={uploadProgress} max={100} />}
+      </div>
     </PageContainer>
   );
 };

@@ -13,10 +13,10 @@ const Installation: React.FC = () => {
       title: 'Welcome',
       content: (
         <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <Title level={2}>Welcome to XTV</Title>
-          <Text type="secondary">
+          <h2>Welcome to XTV</h2>
+          <span>
             Let's set up your virtualization platform. This will only take a few minutes.
-          </Text>
+          </span>
         </div>
       ),
     },
@@ -102,10 +102,10 @@ const Installation: React.FC = () => {
       title: 'Installation',
       content: (
         <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <Title level={3}>Ready to Install</Title>
-          <Text type="secondary">
+          <h2>Ready to Install</h2>
+          <span>
             Click Install to complete the setup. This may take a few minutes.
-          </Text>
+          </span>
         </div>
       ),
     },
@@ -146,10 +146,10 @@ const Installation: React.FC = () => {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
       }}>
         <div style={{ width: 500, textAlign: 'center' }}>
-          <Title level={2}>XTV Already Installed</Title>
-          <Text type="secondary">
+          <h2>XTV Already Installed</h2>
+          <span>
             XTV is already installed and running on this server.
-          </Text>
+          </span>
           <br />
           <button type="primary" onClick={() => navigate('/login')}>
             Go to Login
@@ -169,7 +169,7 @@ const Installation: React.FC = () => {
     }}>
       <div style={{ width: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <Title level={2} style={{ color: '#1890ff' }}>XTV Installation</Title>
+          <h2 style={{ color: '#1890ff' }}>XTV Installation</h2>
         </div>
 
         <div style={{ marginBottom: 32 }}>

@@ -211,6 +211,19 @@ func (s *Server) setupRoutes() {
 	s.router.GET("/api/network/interfaces", s.getNetworkInterfaces)
 	s.router.PUT("/api/network/update-ip", s.updateIPManually)
 	s.router.GET("/api/network/migration-info", s.getMigrationInfo)
+
+	// Serve static webui (React build) at root path
+	s.router.NoRoute(func(c *gin.Context) {
+		// Serve index.html for all non-API routes (SPA fallback)
+		if c.Request.Method == "GET" && !strings.HasPrefix(c.Request.URL.Path, "/api/") && !strings.HasPrefix(c.Request.URL.Path, "/ws/") {
+			c.File("./webui/build/index.html")
+			return
+		}
+		c.JSON(404, gin.H{"error": "Not found"})
+	})
+	s.router.Static("/static", "./webui/build/static")
+	s.router.StaticFile("/favicon.ico", "./webui/build/favicon.ico")
+	s.router.StaticFile("/manifest.json", "./webui/build/manifest.json")
 }
 
 func (s *Server) Start() error {
